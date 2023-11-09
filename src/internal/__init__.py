@@ -13,3 +13,5 @@ app.config["MONGODB_SETTINGS"] = [
 ]
 
 db.init_app(app)
+
+import src.internal.api.user_api

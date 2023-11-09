@@ -6,6 +6,11 @@ from flask import jsonify
 from src.internal import app
 
 
+@app.route('/', methods=["GET"])
+def home():
+    return "<p>Hello world</p>"
+
+
 @app.route('/api/v1/users/create', methods=["POST"])
 def create_user(data):
     """
@@ -15,6 +20,7 @@ def create_user(data):
     """
     return jsonify("Created user. NOT IMPLEMENTED")
 
+
 @app.route('/api/v1/users/get/<id>', methods=["GET"])
 def get_user(id):
     """
@@ -22,7 +28,8 @@ def get_user(id):
     :param id:
     :return:
     """
-    return jsonify("Returned user. NOT IMPLEMENTED")
+    return "Returned user. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/users/update', methods=["PUT"])
 def update_user(data):
@@ -33,8 +40,9 @@ def update_user(data):
     """
     return jsonify("Updated user. NOT IMPLEMENTED")
 
+
 @app.route('/api/v1/users/delete/<id>', methods=["DELETE"])
-def update_user(id):
+def delete_user(id):
     """
     This API creates a new user
     :param id:

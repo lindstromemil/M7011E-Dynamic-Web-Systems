@@ -4,6 +4,7 @@
 ## Dependencies:
 - Python 3.12.0 
 - Flask
+- Flask-Mongoengine
 
 ## Setup environment
 
@@ -20,6 +21,6 @@ In repository folder run these commands
 When activated
 
     pip install flask
-    pip install flask-mongoengine
+    pip install git+https://github.com/idoshr/flask-mongoengine.git@1.0.1
 
 

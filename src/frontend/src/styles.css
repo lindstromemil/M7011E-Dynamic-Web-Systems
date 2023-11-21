@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+    height: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background-color: rgb(230, 230, 230);
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.card {
+    margin: 0 auto;
+    max-width: 50%;
+    padding: 20px;
+    border-radius: 7px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.16);
+}
+
+button {
+    transition: filter 0.1s;
+}
+
+button:hover {
+    filter: brightness(70%);
+}

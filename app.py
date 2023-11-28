@@ -1,4 +1,5 @@
 from src.internal import app
+from src.internal.database import importDB
 
 
 def _run():
@@ -9,6 +10,7 @@ def _run():
 
     """ Imports the app and runs it. """
     print(routes)
+    importDB.insert_db_from_csv()  # Import the database from CSV
     app.run()
 
 

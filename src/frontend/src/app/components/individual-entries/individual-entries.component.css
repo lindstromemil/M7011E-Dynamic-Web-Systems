@@ -1,0 +1,219 @@
+.header-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: var(--content-background);
+}
+
+.header {
+    display: flex;
+    text-align: center;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.beverage-image-wrapper {
+    margin-right: 50px;
+}
+
+.beverage-image-wrapper img {
+    width: 150px;
+    height: auto;
+}
+
+.beverage-image-wrapper button {
+    margin-bottom: -10px;
+    margin-top: 10px;
+}
+
+.beverage-summary-wrapper {
+    text-align: left;
+    margin-top: 50px;
+}
+
+.content-wrapper {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    display: flex;
+    gap: 50px;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.details-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: var(--content-background);
+}
+
+.details {
+    background-color: var(--content-background);
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    text-align: left;
+    width: 100%;
+}
+
+.details-set {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.details-key {
+    padding: 0px;
+    margin: 0px;
+}
+
+.details-key p {
+    font-weight: 500;
+    margin: 0px;
+}
+
+.details-value {
+    padding: 0px;
+    margin: 0px;
+}
+
+.details-value p {
+    margin: 0px;
+    margin-bottom: 10px;
+}
+
+.details-value a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.details-value a:hover {
+    color: var(--primary);
+}
+
+.taste-wrapper {
+    width: auto;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.taste-wrapper h3 {
+    margin: 0px;
+    margin-bottom: 10px;
+}
+
+.taste-container {
+    background-color: var(--content-background);
+    border-radius: 7px;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    padding: 10px;
+}
+
+.taste {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.taste-wrapper h3 {
+    font-weight: 500;
+}
+
+.recommendations-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    margin-top: 10px;
+}
+
+.recommendations-wrapper h3 {
+    margin: 0px;
+    font-weight: 500;
+}
+
+.recommendations-title {
+    margin: 0px;
+    margin-bottom: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.recommendations-title a {
+    margin: 0px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.recommendations-title a:hover {
+    color: var(--primary);
+}
+
+.recommendations-title h3 {
+    margin: 0px;
+    font-weight: 500;
+}
+
+.recommendations-list {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.recommendations-list a {
+    text-decoration: none;
+    color: var(--text);
+}
+
+.recommendations-list a:hover {
+    color: var(--primary);
+}
+
+.recommendations-card {
+    background-color: var(--content-background);
+    width: 160px;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    border-radius: 7px;
+    flex-direction: column;
+
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.recommendations-card img {
+    max-width: 60px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.recommendations-card p {
+    margin: 0px;
+    margin-bottom: 10px;
+}
+
+.recommendations-card h4 {
+    margin: 0px;
+    margin-bottom: 10px;
+}

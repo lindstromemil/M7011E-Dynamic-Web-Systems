@@ -1,0 +1,26 @@
+[
+    {
+        "_id": {
+            "$oid": "65664095cec02e630d9845e6"
+        },
+        "abv": 6.5,
+        "beverageType": "New England IPA/Hazy IPA",
+        "bitterness": 0.5,
+        "brand_id": {
+            "$oid": "65663ad273b71b401f46b32e"
+        },
+        "country": "Sweden",
+        "description": "Slightly hoppy flavor with slight sweetness, hints of light bread, mango, papaya, pine resin and grapefruit. Served at 8-10°C as a companion drink or with dishes of pork, lamb or beef, preferably grilled.",
+        "fullness": 0.7,
+        "image_path": "https://product-cdn.systembolaget.se/productimages/36485207/36485207_400.png?q=75&w=2000",
+        "name": "Hazy IPA",
+        "sweetness": 0.25,
+        "brand": {
+            "_id": {
+                "$oid": "65663ad273b71b401f46b32e"
+            },
+            "description": "The brewery is located in Jonsered. Brewmaster is Daniel Granath. The name Poppels alludes to Johan Poppelman's family business, they brewed beer in Gothenburg for several generations, from the 17th century until 1835. One of the founders of the current Poppels Brewery is a relative of Johan Poppelman.",
+            "name": "Poppels"
+        }
+    }
+]

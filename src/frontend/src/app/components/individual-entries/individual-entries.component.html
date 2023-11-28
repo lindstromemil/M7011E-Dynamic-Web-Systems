@@ -1,0 +1,121 @@
+<app-navbar></app-navbar>
+<div class="header-wrapper">
+    <div class="header">
+        <div class="beverage-image-wrapper">
+            <img [src]="beverage.image_path" alt="Beverage Image">
+            <button mat-raised-button color="accent">Add to list</button>
+        </div>
+        <div class="beverage-summary-wrapper">
+            <h1>{{ beverage.name }}</h1>
+            <p>{{ beverage.description }}</p>
+        </div>
+    </div>
+</div>
+<div class="content-wrapper">
+    <div class="content">
+        <div class="details-wrapper">
+            <div class="details">
+                <div class="details-set">
+                    <div class="details-key">
+                        <p>Type</p>
+                    </div>
+                    <div class="details-value">
+                        <a [routerLink]="['/browse', beverage.beverageType]">
+                            <p>{{beverage.beverageType}}</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="details-set">
+                    <div class="details-key">
+                        <p>ABV</p>
+                    </div>
+                    <div class="details-value">
+                        <p>{{beverage.abv}} %</p>
+                    </div>
+                </div>
+
+                <div class="details-set">
+                    <div class="details-key">
+                        <p>Average Score</p>
+                    </div>
+                    <div class="details-value">
+                        <p> 1/10</p>
+                    </div>
+                </div>
+
+                <div class="details-set">
+                    <div class="details-key">
+                        <p>Brand</p>
+                    </div>
+                    <div class="details-value">
+                        <a [routerLink]="['/brands', beverage.brand.name]">
+                            <p>{{beverage.brand.name}}</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="details-set">
+                    <div class="details-key">
+                        <p>Country</p>
+                    </div>
+                    <div class="details-value">
+                        <a [routerLink]="['/browse', beverage.country]">
+                            <p>{{beverage.country}}</p>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="taste-wrapper">
+            <h3>Taste description</h3>
+            <div class="taste-container">
+                <div class="taste">
+                    <h3>Bitterness</h3>
+                    <mat-progress-spinner [diameter]="100" [value]="beverage.bitterness * 100"></mat-progress-spinner>
+                </div>
+                <div class="taste">
+                    <h3>Fullness</h3>
+                    <mat-progress-spinner [diameter]="100" [value]="beverage.fullness * 100"></mat-progress-spinner>
+                </div>
+                <div class="taste">
+                    <h3>Sweetness</h3>
+                    <mat-progress-spinner [diameter]="100" [value]="beverage.sweetness * 100"></mat-progress-spinner>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+        <div class="recommendations-wrapper">
+            <div class="recommendations-title">
+                <h3>Discover more from {{beverage.brand.name}}</h3>
+                <a [routerLink]="['/browse', beverage.beverageType]">
+                    View all beverages from the same brand
+                </a>
+            </div>
+            <div class="recommendations-list">
+                <a [routerLink]="['/beverage', beverage.name]" class="recommendations-card">
+                    <img src={{beverage.image_path}} alt="Beverage Image">
+                    <h4>{{beverage.name}}</h4>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="recommendations-wrapper">
+            <div class="recommendations-title">
+                <h3>Dive Deeper into {{beverage.beverageType}}</h3>
+                <a [routerLink]="['/browse', beverage.beverageType]">
+                    View all beverages of the same type
+                </a>
+            </div>
+            <div class="recommendations-list">
+                <a [routerLink]="['/beverage', beverage.name]" class="recommendations-card">
+                    <img src={{beverage.image_path}} alt="Beverage Image">
+                    <h4>{{beverage.name}}</h4>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

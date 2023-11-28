@@ -25,7 +25,7 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "src/siteTheme.scss",
               "src/styles.css"
             ],
             "scripts": []
@@ -88,8 +88,8 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/siteTheme.scss"
             ],
             "scripts": []
           }

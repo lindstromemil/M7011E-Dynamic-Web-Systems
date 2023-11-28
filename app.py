@@ -8,7 +8,7 @@ def _run():
     for rule in app.url_map.iter_rules():
         routes.append("%s" % rule)
 
-    """ Imports the app and runs it. """
+    # Imports the app and runs it.
     print(routes)
     importDB.insert_db_from_csv()  # Import the database from CSV
     app.run()

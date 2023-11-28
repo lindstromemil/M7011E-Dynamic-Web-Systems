@@ -15,3 +15,9 @@ app.config["MONGODB_SETTINGS"] = [
 db.init_app(app)
 
 import src.internal.api.user_api
+import src.internal.api.spirits_api
+import src.internal.api.ratings_api
+import src.internal.api.planning_api
+import src.internal.api.likes_api
+import src.internal.api.admin_api
+import src.internal.api.follow_api

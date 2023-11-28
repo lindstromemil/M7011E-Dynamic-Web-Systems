@@ -6,11 +6,6 @@ from flask import jsonify
 from src.internal import app
 
 
-@app.route('/', methods=["GET"])
-def home():
-    return "<p>Hello world</p>"
-
-
 @app.route('/api/v1/users/create', methods=["POST"])
 def create_user(data):
     """
@@ -29,6 +24,10 @@ def get_user(id):
     :return:
     """
     return "Returned user. NOT IMPLEMENTED"
+
+@app.route('/api/v1/users/get', methods=["GET"])
+def get_all_user():
+    return "Returned all users. NOT IMPLEMENTED"
 
 
 @app.route('/api/v1/users/update', methods=["PUT"])

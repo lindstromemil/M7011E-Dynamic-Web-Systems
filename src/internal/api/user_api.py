@@ -4,9 +4,10 @@
 from flask import jsonify
 
 from src.internal import app
+from src.internal.models.user import User, UserProfile
 
 
-@app.route('/api/v1/users/create', methods=["POST"])
+@app.route("/api/v1/users/create", methods=["POST"])
 def create_user(data):
     """
     This API creates a new user
@@ -16,7 +17,7 @@ def create_user(data):
     return jsonify("Created user. NOT IMPLEMENTED")
 
 
-@app.route('/api/v1/users/get/<id>', methods=["GET"])
+@app.route("/api/v1/users/get/<id>", methods=["GET"])
 def get_user(id):
     """
     This API creates a new user
@@ -25,12 +26,13 @@ def get_user(id):
     """
     return "Returned user. NOT IMPLEMENTED"
 
-@app.route('/api/v1/users/get', methods=["GET"])
+
+@app.route("/api/v1/users/get", methods=["GET"])
 def get_all_user():
     return "Returned all users. NOT IMPLEMENTED"
 
 
-@app.route('/api/v1/users/update', methods=["PUT"])
+@app.route("/api/v1/users/update", methods=["PUT"])
 def update_user(data):
     """
     This API creates a new user
@@ -40,7 +42,7 @@ def update_user(data):
     return jsonify("Updated user. NOT IMPLEMENTED")
 
 
-@app.route('/api/v1/users/delete/<id>', methods=["DELETE"])
+@app.route("/api/v1/users/delete/<id>", methods=["DELETE"])
 def delete_user(id):
     """
     This API creates a new user

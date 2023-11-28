@@ -6,11 +6,6 @@ from flask import jsonify
 from src.internal import app
 
 
-@app.route('/', methods=["GET"])
-def home():
-    return "<p>Hello world</p>"
-
-
 @app.route('/api/v1/users/create', methods=["POST"])
 def create_user(data):
     """

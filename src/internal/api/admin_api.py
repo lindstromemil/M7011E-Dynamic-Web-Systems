@@ -25,6 +25,10 @@ def get_admin(id):
     """
     return "Returned admin. NOT IMPLEMENTED"
 
+@app.route('/api/v1/admin/get', methods=["GET"])
+def get_all_admin():
+    return "Returned all admins. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/admin/update', methods=["PUT"])
 def update_admin(data):

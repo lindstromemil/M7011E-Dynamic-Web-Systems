@@ -25,6 +25,10 @@ def get_user(id):
     """
     return "Returned user. NOT IMPLEMENTED"
 
+@app.route('/api/v1/users/get', methods=["GET"])
+def get_all_user():
+    return "Returned all users. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/users/update', methods=["PUT"])
 def update_user(data):

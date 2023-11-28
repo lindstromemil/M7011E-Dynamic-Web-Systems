@@ -25,6 +25,9 @@ def get_rating(id):
     """
     return "Returned rating. NOT IMPLEMENTED"
 
+@app.route('/api/v1/ratings/get', methods=["GET"])
+def get_all_ratings():
+    return "Returned all ratings. NOT IMPLEMENTED"
 
 @app.route('/api/v1/ratings/update', methods=["PUT"])
 def update_rating(data):

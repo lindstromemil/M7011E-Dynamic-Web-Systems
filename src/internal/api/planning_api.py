@@ -25,6 +25,10 @@ def get_planning(id):
     """
     return "Returned planning. NOT IMPLEMENTED"
 
+@app.route('/api/v1/planning/get', methods=["GET"])
+def get_all_plannings():
+    return "Returned all plannings. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/planning/update', methods=["PUT"])
 def update_planning(data):

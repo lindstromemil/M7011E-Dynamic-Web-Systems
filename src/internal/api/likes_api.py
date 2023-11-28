@@ -25,6 +25,10 @@ def get_like(id):
     """
     return "Returned like. NOT IMPLEMENTED"
 
+@app.route('/api/v1/likes/get', methods=["GET"])
+def get_all_likes():
+    return "Returned all likes. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/likes/update', methods=["PUT"])
 def update_like(data):

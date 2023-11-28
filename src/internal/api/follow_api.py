@@ -25,6 +25,10 @@ def get_follow(id):
     """
     return "Returned follow. NOT IMPLEMENTED"
 
+@app.route('/api/v1/follow/get', methods=["GET"])
+def get_all_follows():
+    return "Returned all follows. NOT IMPLEMENTED"
+
 
 @app.route('/api/v1/follow/update', methods=["PUT"])
 def update_follow(data):

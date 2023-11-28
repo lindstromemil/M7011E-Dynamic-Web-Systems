@@ -25,6 +25,9 @@ def get_spirit(id):
     """
     return "Returned spirit. NOT IMPLEMENTED"
 
+@app.route('/api/v1/spirits/get', methods=["GET"])
+def get_all_spirits():
+    return "Returned all spirits. NOT IMPLEMENTED"
 
 @app.route('/api/v1/spirits/update', methods=["PUT"])
 def update_spirits(data):

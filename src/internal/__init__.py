@@ -1,5 +1,6 @@
 import flask
 from flask_mongoengine import MongoEngine
+import src.internal.database.importDB as importDB
 
 db = MongoEngine()
 app = flask.Flask("m7011e_app")

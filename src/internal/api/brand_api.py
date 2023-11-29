@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from internal.models.brand import Brand
+from src.internal.models.brand import Brand
 from src.internal import app
 
 

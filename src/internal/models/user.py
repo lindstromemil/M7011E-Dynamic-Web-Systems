@@ -8,8 +8,8 @@ class UserProfile(EmbeddedDocument):
 
 
 class User(Document):
-    username = StringField()
-    password = StringField()
+    username = StringField(unique=True, required=True)
+    password = StringField(required=True)
     created_at = DateTimeField()
     profile = EmbeddedDocumentField(UserProfile)
 

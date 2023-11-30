@@ -1,4 +1,4 @@
-from mongoengine import DateTimeField, Document, IntField, ReferenceField
+from mongoengine import DateTimeField, StringField, Document, FloatField, ReferenceField
 
 from src.internal.models.beverage import Beverage
 from src.internal.models.user import User
@@ -6,8 +6,9 @@ from src.internal.models.user import User
 
 class Rating(Document):
     user_id = ReferenceField(User)
-    beer_id = ReferenceField(Beverage)
-    score = IntField()
+    beverage_id = ReferenceField(Beverage)
+    score = FloatField()
+    comment = StringField()
     created_at = DateTimeField()
 
     meta = {"collection": "ratings"}

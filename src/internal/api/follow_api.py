@@ -15,9 +15,7 @@ def create_follow():
 
     try:
         first_user = User.objects.get(username=data["yourUsername"])
-        print(first_user)
         second_user = User.objects.get(username=data["targetUsername"])
-        print(second_user)
     except User.DoesNotExist:
         return jsonify("A user does not exist")
     

@@ -24,31 +24,20 @@ def create_like():
         Like.objects.get(user_id=user, rating_id=rating)
     except Like.DoesNotExist:
         like = Like(user_id=user, rating_id=rating)
-        print(like)
         like.save()
         return jsonify("created")
     
     return jsonify("rating already liked by user")
 
-
+#NOT NEEDED, only for testing
 @app.route('/api/v1/likes/get/<id>', methods=["GET"])
 def get_like(id):
-    """
-    Returns a like
-    :param id:
-    :return:
-    """
     like = Like.objects(id=id).first()
     return jsonify(like)
 
-
+#NOT NEEDED, not supposed to be allowed to update a like
 @app.route('/api/v1/likes/update', methods=["PUT"])
 def update_like(data):
-    """
-    This API creates a new user
-    :param data:
-    :return:
-    """
     return jsonify("Updated like. NOT IMPLEMENTED")
 
 

@@ -30,16 +30,13 @@ def create_rating():
         return jsonify("Error creating rating")
 
 
+#NOT NEEDED, only for testing
 @app.route('/api/v1/ratings/get/<id>', methods=["GET"])
 def get_rating(id):
-    """
-    Get rating based on id
-    :param id:
-    :return rating:
-    """
     rating = Rating.objects(id=id).first()
     return jsonify(rating)
 
+#NOT NEEDED, only for testing
 @app.route('/api/v1/ratings/get', methods=["GET"])
 def get_all_ratings():
     return jsonify(Rating.objects().all())
@@ -62,7 +59,6 @@ def update_rating(id):
     :return:
     """
     data = request.get_json()
-    print(data)
     try:
         rating = Rating.objects.get(id=id)
         for key, value in data.items():

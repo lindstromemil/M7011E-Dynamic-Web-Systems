@@ -44,7 +44,7 @@ def get_all_brand():
 @app.route("/api/v1/brand/update", methods=["PUT"])
 def update_brand():
     """
-    This API creates a new user
+    Updates a brand
     :param json data:
     :return:
     """

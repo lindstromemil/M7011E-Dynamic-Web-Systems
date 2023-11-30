@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from datetime import datetime
+from src.internal.models.follow import FollowedBy, Follows
 from src.internal.models.like import Like
 from src.internal.models.rating import Rating
 from src.internal.models.user import User, UserProfile
@@ -112,3 +113,39 @@ def get_all_users_ratings(name):
         return jsonify("user does not exist")
     
     return jsonify(Rating.objects(user_id=user_id))
+
+
+@app.route('/api/v1/users/follows/<name>', methods=["GET"])
+def get_user_follows_list(name):
+    """
+    Get all users followings
+    :param username:
+    :return list of all users the user is following:
+    """
+    try:
+        user_id = User.objects.get(username=name)
+    except User.DoesNotExist:
+        return jsonify("user does not exist")
+    
+    follows = Follows.objects.filter(user_id=user_id)
+    entries = [follow.followed_id for follow in follows]
+
+    return jsonify(entries)
+
+
+@app.route('/api/v1/users/followedby/<name>', methods=["GET"])
+def get_user_followed_by_list(name):
+    """
+    Get all users followedby
+    :param username:
+    :return list of all users the user is followed by:
+    """
+    try:
+        user_id = User.objects.get(username=name)
+    except User.DoesNotExist:
+        return jsonify("user does not exist")
+    
+    followed = FollowedBy.objects.filter(user_id=user_id)
+    entries = [follow.follower_id for follow in followed]
+
+    return jsonify(entries)

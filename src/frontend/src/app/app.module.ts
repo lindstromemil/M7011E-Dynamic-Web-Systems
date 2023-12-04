@@ -10,9 +10,13 @@ import { IndividualEntriesComponent } from './individual-entries/individual-entr
 import { BreweryComponent } from './brewery/brewery.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ProfileComponent } from './profile/profile.component';
+import { UserService} from './services/user.service'
 import { NavbarComponent } from './navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import {HttpClientModule } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
 @NgModule({
   declarations: [
@@ -28,11 +32,13 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatButtonModule
+    MatButtonModule,
+    FormsModule
   ],
-  providers: [],
+  providers: [CookieService, UserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

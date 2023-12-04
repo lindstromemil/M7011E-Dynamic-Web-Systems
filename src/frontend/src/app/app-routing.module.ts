@@ -10,7 +10,7 @@ import { ActivityComponent } from './activity/activity.component';
 import { ProfileComponent } from './profile/profile.component';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: '', component: LoginComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'browse', component: BrowseComponent },
   { path: 'entry', component: IndividualEntriesComponent },

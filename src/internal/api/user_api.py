@@ -5,9 +5,12 @@ from src.internal.models.like import Like
 from src.internal.models.rating import Rating
 from src.internal.models.user import User, UserProfile
 from src.internal import app
+from flask_cors import cross_origin
+from bson import ObjectId
 
 
 @app.route("/api/v1/users/create", methods=["POST"])
+@cross_origin()
 def create_user():
     """
     This API creates a new user
@@ -20,13 +23,41 @@ def create_user():
 
     userProfile = UserProfile(image_path=data["image_path"], description=data["description"])
     user = User(username=data["username"], password=data["password"], created_at=datetime.now(), profile=userProfile)
-    
+
     user.save()
-    return jsonify("created")
+    return jsonify(user)
+
 
 def is_username_unique(username):
     existing_user = User.objects(username=username).first()
     return existing_user is None
+
+
+@app.route("/api/v1/users/login/<username>:<password>", methods=["GET"])
+def login_user(username, password):
+    """
+    Login user
+    :param username:
+    :param password:
+    :return user:
+    """
+    user = User.objects(username=username, password=password).first()
+    return jsonify(user)
+
+
+@app.route("/api/v1/users/me", methods=["GET"])
+def get_me():
+    """
+    Get me
+    :return user:
+    """
+    data = request.headers
+    id_string = data["Authorization"]
+    _id = ObjectId(id_string)
+
+    user = User.objects(id=_id).first()
+    return jsonify(user)
+
 
 @app.route("/api/v1/users/get/<name>", methods=["GET"])
 def get_user(name):
@@ -46,6 +77,7 @@ def get_all_user():
     :return All users:
     """
     return jsonify(User.objects().all())
+
 
 @app.route('/api/v1/users/likes/<user_id>', methods=["GET"])
 def get_all_user_likes(user_id):
@@ -76,7 +108,7 @@ def update_user():
 
         user.save()
         return jsonify("Updated user")
-    
+
     except User.DoesNotExist:
         return jsonify("User does not exist")
     except Exception as e:
@@ -94,11 +126,12 @@ def delete_user(name):
         user = User.objects.get(username=name)
         user.delete()
         return jsonify("Deleted user")
-    
+
     except User.DoesNotExist:
         return jsonify("User does not exist")
     except Exception as e:
         return jsonify("Error deleting user")
+
 
 @app.route('/api/v1/users/ratings/<name>', methods=["GET"])
 def get_all_users_ratings(name):
@@ -111,7 +144,7 @@ def get_all_users_ratings(name):
         user_id = User.objects.get(username=name).id
     except User.DoesNotExist:
         return jsonify("user does not exist")
-    
+
     return jsonify(Rating.objects(user_id=user_id))
 
 
@@ -126,7 +159,7 @@ def get_user_follows_list(name):
         user_id = User.objects.get(username=name)
     except User.DoesNotExist:
         return jsonify("user does not exist")
-    
+
     follows = Follows.objects.filter(user_id=user_id)
     entries = [follow.followed_id for follow in follows]
 
@@ -144,7 +177,7 @@ def get_user_followed_by_list(name):
         user_id = User.objects.get(username=name)
     except User.DoesNotExist:
         return jsonify("user does not exist")
-    
+
     followed = FollowedBy.objects.filter(user_id=user_id)
     entries = [follow.follower_id for follow in followed]
 

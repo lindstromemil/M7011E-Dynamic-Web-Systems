@@ -1,1 +1,50 @@
-<p>login works!</p>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spirits - Login</title>
+</head>
+
+<div *ngIf="login">
+    <body>
+        <div class="login-container">
+            <h2>Spirits - Login</h2>
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required [(ngModel)]="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required [(ngModel)]="password">
+                </div>
+                <button (click)="loginUser()" class="login-btn">Login</button>
+                <button (click)="switchRegLog()" class="switch-btn">Register</button>
+            </form>
+        </div>
+    </body>
+</div>
+
+<div *ngIf="!login">
+    <body>
+        <div class="login-container">
+            <h2>Spirits - Register</h2>
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required [(ngModel)]="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required [(ngModel)]="password">
+                </div>
+                <button (click)="registerUser()" class="login-btn">Register</button>
+                <button (click)="switchRegLog()" class="switch-btn">Login</button>
+            </form>
+        </div>
+    </body>
+</div>
+
+</html>

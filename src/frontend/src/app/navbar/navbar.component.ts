@@ -1,5 +1,6 @@
 import { Component, Input, booleanAttribute } from '@angular/core';
 import { Router } from '@angular/router';
+import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,7 +10,9 @@ import { Router } from '@angular/router';
 export class NavbarComponent {
 
   constructor(
-    private router: Router) {
+    private router: Router,
+    private cookieService: CookieService
+    ) {
   }
 
   @Input({ transform: booleanAttribute }) firstSelected!: boolean;
@@ -17,6 +20,7 @@ export class NavbarComponent {
   @Input({ transform: booleanAttribute }) thirdSelected!: boolean;
 
   logout(): void {
+    this.cookieService.set('_id', "");
     this.router.navigate(['login']);
   }
 

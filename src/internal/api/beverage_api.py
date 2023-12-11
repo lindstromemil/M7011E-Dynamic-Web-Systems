@@ -66,7 +66,6 @@ def get_all_beverages():
 @app.route("/api/v1/beverage/update/<string:new_beverage_name>", methods=["PATCH"])
 def update_beverage(new_beverage_name):
     try:
-        print(new_beverage_name)
         data = request.get_json()
         update_data = {}
         if does_beverage_exist(str(data["name"])) is None:

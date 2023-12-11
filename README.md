@@ -21,6 +21,8 @@ In repository folder run these commands
 When activated
 
     pip install flask
+    pip install flask-cors
     pip install git+https://github.com/idoshr/flask-mongoengine.git@1.0.1
+    
 
 

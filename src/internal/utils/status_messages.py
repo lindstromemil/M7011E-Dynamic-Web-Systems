@@ -29,4 +29,7 @@ class Status():
     
     def already_a_admin():
         return make_response(jsonify({"message": "User is already a admin"}), HTTPStatus.BAD_REQUEST)
+    
+    def already_exists():
+        return make_response(jsonify({"message": "Object / Connection already exists"}), HTTPStatus.BAD_REQUEST)
 

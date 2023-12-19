@@ -9,7 +9,7 @@ from src.internal import app
 def create_admin():
     headers = request.headers
     data = request.get_json()
-    
+
     existing_user = does_user_exist(data["user_id"])
     if existing_user is None:
         return Status.not_found()
@@ -41,12 +41,14 @@ def super_admin_me():
         return Status.does_not_have_access()
 
 
+#NOT NEEDED, only for testing
 @app.route('/api/v1/admin/get/<admin_id>', methods=["GET"])
 def get_admin(admin_id):
-    admin = Admin.objects.get(id=admin_id)
+    admin = Admin.objects.get(user_id=admin_id)
     return jsonify(admin)
 
 
+#Mby nice for super admins to have
 @app.route('/api/v1/admin/get', methods=["GET"])
 def get_all_admin():
     return jsonify(Admin.objects().all())
@@ -61,7 +63,7 @@ def update_admin():
         return Status.not_found()
     
     if (super_admin_check(headers["sender_id"])):
-        admin = Admin.objects.get(id=data["admin_id"])
+        admin = Admin.objects.get(user_id=data["admin_id"])
         setattr(admin, "access", data["access"])
         admin.save()
         return Status.updated()
@@ -77,7 +79,7 @@ def delete_admin(admin_id):
         return Status.not_found()
 
     if super_admin_check(headers["sender_id"]):
-        admin = Admin.objects.get(id=admin_id)
+        admin = Admin.objects.get(user_id=admin_id)
         admin.delete()
         return Status.deleted()
     

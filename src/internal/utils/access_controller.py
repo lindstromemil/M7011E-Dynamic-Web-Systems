@@ -1,4 +1,5 @@
 from flask import jsonify
+from src.internal.utils.status_messages import Status
 from src.internal.models.admin import Admin
 from src.internal.models.follow import FollowedBy, Follows
 from src.internal.models.like import Like
@@ -10,11 +11,11 @@ def does_user_exist(user_id):
     return User.objects.get(id=user_id)
 
 def does_admin_exist(admin_id):
-    return Admin.objects.get(id=admin_id)
+    return Admin.objects.get(user_id=admin_id)
 
 def admin_check(user_id):
     try:
-        admin = Admin.objects.get(id=user_id)
+        admin = Admin.objects.get(user_id=user_id)
         if (admin.access == "admin"):
             return True
         return False
@@ -23,7 +24,7 @@ def admin_check(user_id):
 
 def super_admin_check(user_id):
     try:
-        admin = Admin.objects.get(id=user_id)
+        admin = Admin.objects.get(user_id=user_id)
         if (admin.access == "super_admin"):
             return True
         return False
@@ -36,7 +37,7 @@ def user_access_check(sender_id, user_id):
         current_user = User.objects.get(id=sender_id)
         target_user = User.objects.get(id=user_id)
     except User.DoesNotExist:
-        return jsonify("User does not exist")
+        return Status.not_found()
     
     if (current_user == target_user or admin_check(current_user.id) or super_admin_check(current_user.id)):
         return False
@@ -49,28 +50,27 @@ def ratings_access_check(sender_id, rating_id):
         current_user = User.objects.get(id=sender_id)
         target_rating = Rating.objects.get(id=rating_id)
     except User.DoesNotExist:
-        return jsonify("User does not exist")
+        return Status.not_found()
     except Rating.DoesNotExist:
-        return jsonify("Rating does not exist")
+        return Status.not_found()
     
     if (current_user == target_rating.user_id or admin_check(current_user.id) or super_admin_check(current_user.id)):
         return False
     else:
         return True
     
-def follow_access_check(sender_id, user_id, targeted_id):
+def follow_access_check(sender_id, user_id, target_id):
     try:
-        follow = Follows.objects.get(user_id=user_id, followed_id=targeted_id)
-        followBy = FollowedBy.objects.get(user_id=targeted_id, follower_id=user_id)
+        follow = Follows.objects.get(user_id=user_id, followed_id=target_id)
+        followBy = FollowedBy.objects.get(user_id=target_id, follower_id=user_id)
+        if ((sender_id == user_id) or admin_check(sender_id) or super_admin_check(sender_id)):
+            return False
+        else:
+            return True
     except Follows.DoesNotExist:
-        return jsonify("Follow does not exist")
+        return Status.not_found()
     except FollowedBy.DoesNotExist:
-        return jsonify("FolloedBy does not exist")
-    
-    if (sender_id == follow.id or admin_check(sender_id) or super_admin_check(sender_id)):
-        return False
-    else:
-        return True
+        return Status.not_found()
     
 def like_access_check(sender_id, like_id):
     try:

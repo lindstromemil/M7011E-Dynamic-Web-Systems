@@ -1,6 +1,4 @@
-from re import S
 import unittest
-from src.internal.utils.access_controller import super_admin_check
 from src.internal.models.admin import Admin
 from src.internal.models.user import User
 from src.internal import app
@@ -36,7 +34,7 @@ class TestAdmin(unittest.TestCase):
 
     def test_create_admin_success(self):
         user_id = User.objects.get(username="admin_user").id
-        super_admin_id = Admin.objects().first().id
+        super_admin_id = Admin.objects().first().user_id.id
 
         data = {"user_id": user_id, "access": "admin"}
         headers = {"sender_id": super_admin_id}
@@ -56,7 +54,7 @@ class TestAdmin(unittest.TestCase):
 
 
     def test_get_admin_success(self):
-        admin_id = Admin.objects().first().id
+        admin_id = Admin.objects().first().user_id.id
         response = self.app.get("/api/v1/admin/get/"+str(admin_id))
         self.assertEqual(response.status_code, 200)
 
@@ -69,15 +67,15 @@ class TestAdmin(unittest.TestCase):
         admin = Admin(user_id=test_user.id, access="admin")
         admin.save()
 
-        data = {"admin_id": admin.id,"access": "super_admin"}
-        headers = {"sender_id": Admin.objects().first().id}
+        data = {"admin_id": admin.user_id.id,"access": "super_admin"}
+        headers = {"sender_id": Admin.objects().first().user_id.id}
 
         response = self.app.put("/api/v1/admin/update", json=data, headers=headers)
         self.assertEqual(response.status_code, 200)
 
 
     def test_delete_userr_success(self):
-        super_admin_id = Admin.objects().first().id
+        super_admin_id = Admin.objects().first().user_id.id
         response = self.app.delete("/api/v1/admin/delete/" + str(super_admin_id), headers={"sender_id": super_admin_id})
         self.assertEqual(response.status_code, 200)
 
@@ -86,7 +84,3 @@ class TestAdmin(unittest.TestCase):
         User.objects().delete()
         Admin.objects().delete()
         pass
-
-
-if __name__ == '__main__':
-    unittest.main()

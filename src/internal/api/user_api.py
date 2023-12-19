@@ -117,7 +117,6 @@ def delete_user(name):
     return Status.deleted()
 
 
-
 @app.route('/api/v1/users/ratings/<name>', methods=["GET"])
 def get_all_users_ratings(name):
     try:

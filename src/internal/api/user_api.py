@@ -1,5 +1,7 @@
 from flask import jsonify, request
 from datetime import datetime
+from src.internal.utils.access_controller import *
+from src.internal.utils.status_messages import Status
 from src.internal.models.follow import FollowedBy, Follows
 from src.internal.models.like import Like
 from src.internal.models.rating import Rating
@@ -12,20 +14,15 @@ from bson import ObjectId
 @app.route("/api/v1/users/create", methods=["POST"])
 @cross_origin()
 def create_user():
-    """
-    This API creates a new user
-    :param json data:
-    :return:
-    """
     data = request.get_json()
     if not is_username_unique(str(data["username"])):
-        raise jsonify("name already exists")
+        return Status.name_already_in_use()
 
     userProfile = UserProfile(image_path=data["image_path"], description=data["description"])
     user = User(username=data["username"], password=data["password"], created_at=datetime.now(), profile=userProfile)
 
     user.save()
-    return jsonify(user)
+    return Status.created()
 
 
 def is_username_unique(username):
@@ -61,21 +58,12 @@ def get_me():
 
 @app.route("/api/v1/users/get/<name>", methods=["GET"])
 def get_user(name):
-    """
-    Get user based on username
-    :param username:
-    :return user:
-    """
     user = User.objects(username=name).first()
     return jsonify(user)
 
 
 @app.route("/api/v1/users/get", methods=["GET"])
 def get_all_user():
-    """
-    Gets all users
-    :return All users:
-    """
     return jsonify(User.objects().all())
 
 
@@ -92,75 +80,61 @@ def get_all_user_likes(user_id):
 
 @app.route("/api/v1/users/update", methods=["PUT"])
 def update_user():
-    """
-    Update users data
-    :param json data:
-    :return:
-    """
+    headers = request.headers
     data = request.get_json()
-    try:
-        user = User.objects.get(id=data["id"])
-        for key, value in data.items():
-            if key in user:
-                setattr(user, key, value)
-            if key in user.profile:
-                setattr(user.profile, key, value)
 
-        user.save()
-        return jsonify("Updated user")
+    if does_user_exist(headers["sender_id"]) is None:
+        return Status.not_loged_in()
 
-    except User.DoesNotExist:
-        return jsonify("User does not exist")
-    except Exception as e:
-        return jsonify("Error updating user")
+    if user_access_check(headers["sender_id"], data["id"]):
+        return Status.does_not_have_access()
+
+    user = User.objects.get(id=data["id"])
+    for key, value in data.items():
+        if key in user:
+            setattr(user, key, value)
+        elif key in user.profile:
+            setattr(user.profile, key, value)
+
+    user.save()
+    return Status.updated()
 
 
 @app.route("/api/v1/users/delete/<name>", methods=["DELETE"])
 def delete_user(name):
-    """
-    Deletes user based on username
-    :param username:
-    :return:
-    """
+    headers = request.headers
+    if does_user_exist(headers["sender_id"]) is None:
+        return Status.not_loged_in()
+    
     try:
         user = User.objects.get(username=name)
-        user.delete()
-        return jsonify("Deleted user")
-
+        if user_access_check(headers["sender_id"], user.id):
+            return Status.does_not_have_access()
     except User.DoesNotExist:
-        return jsonify("User does not exist")
-    except Exception as e:
-        return jsonify("Error deleting user")
+        return Status.not_found()
+
+    user.delete()
+    return Status.deleted()
 
 
 @app.route('/api/v1/users/ratings/<name>', methods=["GET"])
 def get_all_users_ratings(name):
-    """
-    Get all users ratings
-    :param username:
-    :return all ratings from user:
-    """
     try:
         user_id = User.objects.get(username=name).id
     except User.DoesNotExist:
-        return jsonify("user does not exist")
-
+        return Status.not_found()
+    
     return jsonify(Rating.objects(user_id=user_id))
 
 
 @app.route('/api/v1/users/follows/<name>', methods=["GET"])
 def get_user_follows_list(name):
-    """
-    Get all users followings
-    :param username:
-    :return list of all users the user is following:
-    """
     try:
-        user_id = User.objects.get(username=name)
+        user = User.objects.get(username=name)
     except User.DoesNotExist:
-        return jsonify("user does not exist")
-
-    follows = Follows.objects.filter(user_id=user_id)
+        return Status.not_found()
+    
+    follows = Follows.objects.filter(user_id=user)
     entries = [follow.followed_id for follow in follows]
 
     return jsonify(entries)
@@ -168,17 +142,12 @@ def get_user_follows_list(name):
 
 @app.route('/api/v1/users/followedby/<name>', methods=["GET"])
 def get_user_followed_by_list(name):
-    """
-    Get all users followedby
-    :param username:
-    :return list of all users the user is followed by:
-    """
     try:
-        user_id = User.objects.get(username=name)
+        user = User.objects.get(username=name)
     except User.DoesNotExist:
-        return jsonify("user does not exist")
-
-    followed = FollowedBy.objects.filter(user_id=user_id)
+        return Status.not_found()
+    
+    followed = FollowedBy.objects.filter(user_id=user)
     entries = [follow.follower_id for follow in followed]
 
     return jsonify(entries)

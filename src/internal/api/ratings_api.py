@@ -1,20 +1,17 @@
 from flask import jsonify, request
 from datetime import datetime
+from src.internal.utils.access_controller import does_user_exist, ratings_access_check
 from src.internal.models.like import Like
 from src.internal.models.beverage import Beverage
 from src.internal.models.rating import Rating
 from src.internal.models.user import User
+from src.internal.utils.status_messages import Status
 
 from src.internal import app
 
 
 @app.route('/api/v1/ratings/create', methods=["POST"])
 def create_rating():
-    """
-    This API creates a new rating
-    :param json data:
-    :return:
-    """
     data = request.get_json()
 
     try:
@@ -58,20 +55,20 @@ def update_rating(id):
     :param json data:
     :return:
     """
+    headers = request.headers
     data = request.get_json()
-    try:
-        rating = Rating.objects.get(id=id)
-        for key, value in data.items():
-            if key is rating.score or rating.comment:
-                setattr(rating, key, value)
-
-        rating.save()
-        return jsonify("Updated rating")
     
-    except Rating.DoesNotExist:
-        return jsonify("Rating does not exist")
-    except Exception as e:
-        return jsonify("Error updating rating")
+    if ratings_access_check(headers["sender_id"], id):
+        return jsonify("Not allowed")
+
+    rating = Rating.objects.get(id=id)
+    for key, value in data.items():
+        if key is rating.score or rating.comment:
+            setattr(rating, key, value)
+
+    rating.save()
+    return jsonify("Updated rating")
+    
 
 
 @app.route('/api/v1/ratings/delete/<id>', methods=["DELETE"])
@@ -81,12 +78,13 @@ def delete_rating(id):
     :param id:
     :return:
     """
-    try:
-        rating = Rating.objects.get(id=id)
-        rating.delete()
-        return jsonify("Deleted rating")
+    headers = request.headers
+    if does_user_exist(headers["sender_id"]) is None:
+        return Status.not_loged_in()
     
-    except Rating.DoesNotExist:
-        return jsonify("Rating does not exist")
-    except Exception as e:
-        return jsonify("Error deleting rating")
+    if ratings_access_check(headers["sender_id"], id):
+        return jsonify("Not allowed")
+
+    rating = Rating.objects.get(id=id)
+    rating.delete()
+    return jsonify("Deleted rating")

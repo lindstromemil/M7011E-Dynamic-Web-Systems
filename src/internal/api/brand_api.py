@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from src.internal.utils.access_controller import admin_check, does_user_exist, super_admin_check
 from src.internal.models.brand import Brand
 from src.internal import app
 
@@ -10,13 +11,23 @@ def create_brand():
     :param jason data:
     :return:
     """
-    data = request.get_json()
-    if not is_name_unique(data["name"]):
-        raise jsonify("name already exists")
+    headers = request.headers
     
-    brand = Brand(name=data["name"], description=data["description"])
-    brand.save()
-    return jsonify("true")
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
+
+    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
+
+        data = request.get_json()
+        if not is_name_unique(data["name"]):
+            raise jsonify("name already exists")
+        
+        brand = Brand(name=data["name"], description=data["description"])
+        brand.save()
+        return jsonify("true")
+    
+    else:
+        return jsonify("Not a admin")
 
 def is_name_unique(name):
     existing_name = Brand.objects(name=name).first()
@@ -48,19 +59,27 @@ def update_brand():
     :param json data:
     :return:
     """
-    data = request.get_json()
-    try:
-        brand = Brand.objects.get(id=data["id"])
-        for key, value in data.items():
-            if key in brand:
-                setattr(brand, key, value)
+    headers = request.headers
 
-        return jsonify("Updated brand")
-    
-    except Brand.DoesNotExist:
-        return jsonify("Brand does not exist")
-    except Exception as e:
-        return jsonify("Error updating brand")
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
+
+    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
+        try:
+            data = request.get_json()
+            brand = Brand.objects.get(id=data["id"])
+            for key, value in data.items():
+                if key in brand:
+                    setattr(brand, key, value)
+
+            return jsonify("Updated brand")
+        
+        except Brand.DoesNotExist:
+            return jsonify("Brand does not exist")
+        except Exception as e:
+            return jsonify("Error updating brand")
+    else:
+        return jsonify("Not a admin")
 
 
 @app.route("/api/v1/brand/delete/<name>", methods=["DELETE"])
@@ -70,12 +89,20 @@ def delete_brand(name):
     :param name:
     :return:
     """
-    try:
-        brand = Brand.objects.get(name=name)
-        brand.delete()
-        return jsonify("Deleted brand")
+    headers = request.headers
     
-    except Brand.DoesNotExist:
-        return jsonify("User does not exist")
-    except Exception as e:
-        return jsonify("Error deleting user")
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
+
+    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
+        try:
+            brand = Brand.objects.get(name=name)
+            brand.delete()
+            return jsonify("Deleted brand")
+        
+        except Brand.DoesNotExist:
+            return jsonify("User does not exist")
+        except Exception as e:
+            return jsonify("Error deleting user")
+    else:
+        return jsonify("Not a admin")

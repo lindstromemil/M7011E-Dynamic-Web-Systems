@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from src.internal.utils.access_controller import does_user_exist, like_access_check, user_access_check
 from src.internal.models.rating import Rating
 from src.internal.models.like import Like
 from src.internal.models.user import User
@@ -12,14 +13,21 @@ def create_like():
     :param data:
     :return:
     """
+    headers = request.headers
     data = request.get_json()
 
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
+    
     try:
         user = User.objects.get(username=data["username"])
         rating = Rating.objects.get(id=data["rating_id"])
     except User.DoesNotExist or Rating.DoesNotExist:
         return jsonify("User or rating does not exist")
     
+    if user_access_check(headers["sender_id"], user.id):
+        return jsonify("Does not have acces to create a follow for another user")
+
     try:
         Like.objects.get(user_id=user, rating_id=rating)
     except Like.DoesNotExist:
@@ -48,12 +56,13 @@ def delete_like(id):
     :param id:
     :return:
     """
-    try:
-        like = Like.objects.get(id=id)
-        like.delete()
-        return jsonify("Deleted like")
+    headers = request.headers
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
+
+    if like_access_check(headers["sender_id"], id):
+        return jsonify("Does not have access")
     
-    except Like.DoesNotExist:
-        return jsonify("Like does not exist")
-    except Exception as e:
-        return jsonify("Error deleting like")
+    like = Like.objects.get(id=id)
+    like.delete()
+    return jsonify("Deleted like")

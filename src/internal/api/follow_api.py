@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from src.internal.utils.access_controller import admin_check, does_user_exist, follow_access_check, super_admin_check, user_access_check
 from src.internal.models.follow import FollowedBy, Follows
 from src.internal.models.user import User
 from src.internal import app
@@ -11,13 +12,20 @@ def create_follow():
     :param json data:
     :return:
     """
+    headers = request.headers
     data = request.get_json()
+
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
 
     try:
         first_user = User.objects.get(username=data["yourUsername"])
         second_user = User.objects.get(username=data["targetUsername"])
     except User.DoesNotExist:
         return jsonify("A user does not exist")
+    
+    if user_access_check(headers["sender_id"], first_user.id):
+        return jsonify("Does not have acces to create a follow for another user")
     
     try:
         Follows.objects.get(user_id=first_user, followed_id=second_user)
@@ -52,16 +60,16 @@ def delete_follow():
     :param json data:
     :return:
     """
-    data = request.get_json()
-
-    try:
-        follow = Follows.objects.get(user_id=data["user_id"], followed_id=data["target_id"])
-        followBy = FollowedBy.objects.get(user_id=data["target_id"], follower_id=data["user_id"])
-        follow.delete()
-        followBy.delete()
-        return jsonify("Deleted follow")
+    headers = request.headers
+    if does_user_exist(headers["sender_id"]) is None:
+        return jsonify("Sender does not exist")
     
-    except Follows.DoesNotExist or FollowedBy.DoesNotExist:
-        return jsonify("User is not following that target")
-    except Exception as e:
-        return jsonify("Error deleting follow")
+    data = request.get_json()
+    if follow_access_check(headers["sender_id"], data["user_id"], data["target_id"]):
+        return jsonify("Does not have access")
+    
+    follow = Follows.objects.get(user_id=data["user_id"], followed_id=data["target_id"])
+    followBy = FollowedBy.objects.get(user_id=data["target_id"], follower_id=data["user_id"])
+    follow.delete()
+    followBy.delete()
+    return jsonify("Deleted follow")

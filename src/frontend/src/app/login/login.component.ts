@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import {Router} from '@angular/router';
 import {UserService} from 'src/app/services/user.service'
-import { User } from '../models/user.model';
+import {Token, User} from '../models/user.model';
 import {CookieService} from 'ngx-cookie-service';
 
 @Component({
@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
   login: boolean = true;
   username: string = '';
   password: string = '';
-  
+
   constructor(
     private router: Router,
     private userAPI: UserService,
@@ -22,7 +22,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let username = this.cookieService.get('_id');
+    let username = this.cookieService.get('token');
     if (username !== "") {
       this.router.navigate(['activity']);
     }
@@ -36,13 +36,13 @@ export class LoginComponent implements OnInit {
       return
     }
     this.userAPI.login_user(this.username, this.password).subscribe(
-      (userResponse: User) => {
-        const stringId = userResponse._id.$oid.toString();
-        this.cookieService.set('_id', stringId);
+      (token: Token) => {
+        //const stringId = userResponse._id.$oid.toString();
+        this.cookieService.set('token', token.access_token);
         this.router.navigate(['activity']);
       },
       err => {
-        console.error("Could not login:" + err);
+        console.error("Could not login:" + err.error);
       }
     )
   }
@@ -54,9 +54,9 @@ export class LoginComponent implements OnInit {
       return
     }
     this.userAPI.create_user(this.username, this.password).subscribe(
-      (userResponse: User) => {
-        const stringId = userResponse._id.$oid.toString();
-        this.cookieService.set('_id', stringId);
+      (token: Token) => {
+        //const stringId = userResponse._id.$oid.toString();
+        this.cookieService.set('token', token.access_token);
         this.router.navigate(['activity']);
       },
       err => {

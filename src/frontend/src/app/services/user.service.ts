@@ -1,7 +1,7 @@
 import {HttpClient} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { User } from 'src/app/models/user.model';
+import {Token, User} from 'src/app/models/user.model';
 import { environment } from 'src/environments/environment';
 import {CookieService} from 'ngx-cookie-service';
 
@@ -9,37 +9,30 @@ import {CookieService} from 'ngx-cookie-service';
   providedIn:'root'
 })
 export class UserService {
-    
+
     constructor(
         private http: HttpClient,
         private cookieService: CookieService
     ) {
-  
-    }
-  
 
-  
-    create_user(username: string, password: string): Observable<User> {
+    }
+
+    create_user(username: string, password: string): Observable<Token> {
         const body = {
           "image_path": "----",
           "description": "nice kille",
           "username": username,
           "password": password
         };
-        return this.http.post<User>(environment.baseUrl+"/users/create", body);
+        return this.http.post<Token>(environment.baseUrl+"/users", body);
     }
 
-    login_user(username: string, password: string): Observable<User> {
-      return this.http.get<User>(environment.baseUrl+"/users/login/"+username+":"+password);
+    login_user(username: string, password: string): Observable<Token> {
+      return this.http.get<Token>(environment.baseUrl+"/users/login/"+username+":"+password);
     }
 
     get_me(): Observable<User> {
-
-      let id = this.cookieService.get('_id')
-
-      const header = {
-        'Authorization': id
-      };
+      const header: {Authorization: string} = { 'Authorization': `Bearer ${this.cookieService.get('token')}` }
 
       return this.http.get<User>(environment.baseUrl+"/users/me", { headers: header });
     }

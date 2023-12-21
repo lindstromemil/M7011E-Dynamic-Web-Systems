@@ -10,3 +10,7 @@ export interface Profile {
     "description": string,
     "image_path": string
 }
+
+export interface Token {
+  "access_token": string
+}

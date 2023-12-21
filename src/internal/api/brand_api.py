@@ -1,108 +1,164 @@
+from http import HTTPStatus
+from bson import ObjectId
 from flask import jsonify, request
-from src.internal.utils.access_controller import admin_check, does_user_exist, super_admin_check
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from mongoengine import Q
+from src.internal.utils.access_controller import admin_check
 from src.internal.models.brand import Brand
+from src.internal.models.user import User
 from src.internal import app
+from src.internal.utils.status_messages import Status
 
 
-@app.route("/api/v1/brand/create", methods=["POST"])
+@app.route("/api/v1/brands", methods=["POST"])
+@jwt_required()
 def create_brand():
     """
     This API creates a new brand
-    :param jason data:
+    :param json data:
     :return:
     """
-    headers = request.headers
-    
-    if does_user_exist(headers["sender_id"]) is None:
-        return jsonify("Sender does not exist")
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
 
-    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
-
+    if admin_check(user_id=current_user.id):
         data = request.get_json()
-        if not is_name_unique(data["name"]):
-            raise jsonify("name already exists")
-        
-        brand = Brand(name=data["name"], description=data["description"])
+        try:
+            if Brand.objects.get(name=data["name"]):
+                # 409 Conflict
+                return Status.name_already_in_use()
+        except Brand.DoesNotExist:
+            pass
+
+        brand = Brand(**data)
         brand.save()
-        return jsonify("true")
-    
+        # 201 Created
+        return Status.created()
     else:
-        return jsonify("Not a admin")
+        # 403 Forbidden
+        return Status.does_not_have_access()
 
-def is_name_unique(name):
-    existing_name = Brand.objects(name=name).first()
-    return existing_name is None
 
-@app.route("/api/v1/brand/get/<name>", methods=["GET"])
+@app.route("/api/v1/brands", methods=["GET"])
+def get_all_brands():
+    """
+    Gets all brands matching a query if given
+    :return brands[]:
+    """
+    query = request.args.get("q", type=str, default="")
+    size = request.args.get("size", type=int, default=0)
+    page = request.args.get("page", type=int, default=1)
+    if page == 0:
+        page = 1
+    try:
+        objectId = ObjectId(query)
+        results = Brand.objects(Q(id=objectId))
+    except Exception:
+        results = Brand.objects(Q(name__icontains=query))
+
+    results = results.limit(size).skip((page - 1) * size)
+    brandsList = [brand.to_mongo().to_dict() for brand in results]
+    # 200 OK
+    return jsonify(brandsList), HTTPStatus.OK
+
+
+@app.route("/api/v1/brands/<name>", methods=["GET"])
 def get_brand(name):
     """
     Get brand based on name
     :param name:
-    :return:
+    :return brand:
     """
-    brand = Brand.objects(name=name).first()
-    return jsonify(brand)
+    try:
+        try:
+            objectId = ObjectId(name)
+            brand = Brand.objects.get(id=objectId)
+        except Exception:
+            brand = Brand.objects.get(name__icontains=name)
+        # 200 OK
+        return jsonify(brand), HTTPStatus.OK
+    except Brand.DoesNotExist:
+        # 404 Not found
+        return Status.not_found()
+    except Exception:
+        # 500 Internal server error
+        return Status.error()
 
-@app.route("/api/v1/brand/get", methods=["GET"])
-def get_all_brand():
-    """
-    Gets all brands
-    :return All brands:
-    """
-    return jsonify(Brand.objects().all())
 
-
-@app.route("/api/v1/brand/update", methods=["PUT"])
-def update_brand():
+@app.route("/api/v1/brands/<name>", methods=["PATCH"])
+@jwt_required()
+def update_brand(name):
     """
     Updates a brand
     :param json data:
     :return:
     """
-    headers = request.headers
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
 
-    if does_user_exist(headers["sender_id"]) is None:
-        return jsonify("Sender does not exist")
-
-    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
+    if admin_check(user_id=current_user.id):
         try:
             data = request.get_json()
-            brand = Brand.objects.get(id=data["id"])
+            try:
+                objectId = ObjectId(name)
+                brand = Brand.objects.get(id=objectId)
+            except Exception:
+                brand = Brand.objects.get(name=name)
             for key, value in data.items():
-                if key in brand:
+                if key in brand and key != "id":
                     setattr(brand, key, value)
-
-            return jsonify("Updated brand")
-        
+            brand.save()
+            # 200 OK
+            return Status.updated()
         except Brand.DoesNotExist:
-            return jsonify("Brand does not exist")
-        except Exception as e:
-            return jsonify("Error updating brand")
+            # 404 Not found
+            return Status.not_found()
+        except Exception:
+            # 500 Internal server error
+            return Status.error()
     else:
-        return jsonify("Not a admin")
+        # 403 Forbidden
+        return Status.does_not_have_access()
 
 
-@app.route("/api/v1/brand/delete/<name>", methods=["DELETE"])
+@app.route("/api/v1/brands/<name>", methods=["DELETE"])
+@jwt_required()
 def delete_brand(name):
     """
-    Deletes brand based on name
+    Deletes brand based on name or id
     :param name:
     :return:
     """
-    headers = request.headers
-    
-    if does_user_exist(headers["sender_id"]) is None:
-        return jsonify("Sender does not exist")
-
-    if (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    if admin_check(user_id=current_user.id):
         try:
-            brand = Brand.objects.get(name=name)
+            try:
+                objectId = ObjectId(name)
+                brand = Brand.objects.get(id=objectId)
+            except Exception:
+                brand = Brand.objects.get(name=name)
             brand.delete()
-            return jsonify("Deleted brand")
-        
+            # 200 OK
+            return Status.deleted()
         except Brand.DoesNotExist:
-            return jsonify("User does not exist")
-        except Exception as e:
-            return jsonify("Error deleting user")
+            # 404 Not found
+            return Status.not_found()
+        except Exception:
+            # 500 Internal server error
+            return Status.error()
     else:
-        return jsonify("Not a admin")
+        # 403 Forbidden
+        return Status.does_not_have_access()

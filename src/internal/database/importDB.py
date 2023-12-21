@@ -12,7 +12,7 @@ def insert_brand_from_csv():
         for row in reader:
             try:
                 existingBrand = Brand.objects.get(name=row["name"])
-                print("Brand already exists", row["name"])
+
             except Brand.DoesNotExist:
                 brand = Brand(name=row["name"], description=row["description"])
                 brand.save()
@@ -31,7 +31,6 @@ def insert_beverage_from_csv():
                 continue
             try:
                 existingBeverage = Beverage.objects.get(name=row["name"], brand_id=existingBrand)
-                print(f"Beverage {row['name']} with brand {row['brand']} already exists")
             except Beverage.DoesNotExist:
                 beverage = Beverage(
                     name=row["name"],

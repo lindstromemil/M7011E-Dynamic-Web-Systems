@@ -1,7 +1,14 @@
 # Python imports
 
 # Framework imports
+from http import HTTPStatus
+from bson import ObjectId
 from flask import jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from src.internal.utils.access_controller import admin_check
+from src.internal.utils.status_messages import Status
+from mongoengine import Q
+from src.internal.models.user import User
 
 from src.internal import app
 
@@ -10,99 +17,149 @@ from src.internal.models.beverage import Beverage
 from src.internal.models.brand import Brand
 
 
-@app.route("/api/v1/beverage/create", methods=["POST"])
+@app.route("/api/v1/beverages", methods=["POST"])
+@jwt_required()
 def create_beverage():
+    """
+    This API creates a new beverage
+
+    Returns:
+    """
     try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
+    if admin_check(user_id=current_user.id):
         data = request.get_json()
-
-        if does_brand_exist(data["brand_id"]) is None:
-            raise jsonify("Brand Does Not Exist, Please Enter Brand First")
-
-        if does_beverage_exist(str(data["name"])):
-            raise jsonify("Beverage Already Exists, Please Enter Unique Beverage")
-
-        data["brand_id"] = Brand.objects.get(name=data["brand_id"])
-        new_beverage = Beverage(**data)
-        new_beverage.save()
-        return jsonify({'message': 'Beverage created successfully'}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-def does_brand_exist(brand_name):
-    existing_brand_name = Brand.objects.get(name__icontains=brand_name)
-    return existing_brand_name
-
-
-def does_beverage_exist(beverage_name):
-    try:
-        existing_beverage_name = Beverage.objects.get(name__icontains=beverage_name)
-        return existing_beverage_name
-    except Exception as e:
-        return None
+        try:
+            data["brand_id"] = Brand.objects.get(name=data["brand_id"])
+        except Brand.DoesNotExist:
+            return jsonify({"message": "Brand Does Not Exist, Please Enter Brand First"}), 422
+        try:
+            beverage = Beverage.objects.get(name=data["name"])
+            if beverage:
+                # 409 Conflict
+                return Status.name_already_in_use()
+        except Beverage.DoesNotExist:
+            pass
+        beverage = Beverage(**data)
+        beverage.save()
+        # 201 Created
+        return Status.created()
+    else:
+        # 403 Forbidden
+        return Status.does_not_have_access()
 
 
-@app.route("/api/v1/beverage/get", methods=["GET"])
+@app.route("/api/v1/beverages", methods=["GET"])
 def get_beverage():
+    query = request.args.get("q", type=str, default="")
+    size = request.args.get("size", type=int, default=0)
+    page = request.args.get("page", type=int, default=1)
+    if page == 0:
+        page = 1
     try:
-        data = request.get_json()
-        queried_beverage = Beverage.objects.get(name=str(data["name"]))
-        if queried_beverage is not None:
-            return jsonify(queried_beverage, queried_beverage.brand_id)
-        else:
-            return jsonify({'message': 'Beverage not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        objectId = ObjectId(query)
+        results = Beverage.objects(Q(id=objectId))
+    except Exception:
+        results = Beverage.objects(
+            Q(name__icontains=query) | Q(country__icontains=query) | Q(beverageType__icontains=query)
+        )
+    results = results.limit(size).skip((page - 1) * size)
+    brandsList = [beverage.to_mongo().to_dict() for beverage in results]
+    # 200 OK
+    return jsonify(brandsList), HTTPStatus.OK
 
 
-def switch(body):
-    query = {}
-    if "name" in body:
-        query["name__icontains"] = body["name"]
-    if "beverageType" in body:
-        query["beverageType__icontains"] = body["beverageType"]
-    if "country" in body:
-        query["country__icontains"] = body["country"]
-    if "brand" in body:
-        brand = does_brand_exist(body["brand"])
-        query["brand_id__icontains"] = str(brand.id)
-    return query
-
-
-@app.route("/api/v1/beverage/get/all", methods=["GET"])
-def get_all_beverages():
+@app.route("/api/v1/beverages/<name>", methods=["GET"])
+def get_all_beverages(name):
     try:
-        data = request.get_json()
-        query = switch(data)
-        beverages = Beverage.objects(**query)
-        all_beverages = [beverage.to_mongo().to_dict() for beverage in beverages]
-        return jsonify(all_beverages)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route("/api/v1/beverage/update/", methods=["PATCH"])
-def update_beverage():
-    try:
-        data = request.get_json()
-        beverage_id = data["id"]
-        del data["id"]
-        Beverage.objects.get(id=beverage_id)
-        Beverage.objects(id=beverage_id).update(**data)
-        return jsonify({'message': 'Beverage updated successfully'}), 200
+        try:
+            objectId = ObjectId(name)
+            beverage = Beverage.objects.get(id=objectId)
+        except Exception:
+            beverage = Beverage.objects(
+                Q(name__icontains=name) | Q(country__icontains=name) | Q(beverageType__icontains=name)
+            ).first()
+        # 200 OK
+        return jsonify(beverage), HTTPStatus.OK
     except Beverage.DoesNotExist:
-        return jsonify("Beverage Does Not Exist")
+        # 404 Not found
+        return Status.not_found()
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(e)
+        # 500 Internal server error
+        return Status.error()
 
 
-@app.route("/api/v1/beverage/delete/<id>", methods=["DELETE"])
-def delete_beverages(id):
+@app.route("/api/v1/beverages/<name>", methods=["PATCH"])
+@jwt_required()
+def update_beverage(name):
     try:
-        beverage = Beverage.objects.get(id=id)
-        beverage.delete()
-        return jsonify({'message': 'Beverage deleted successfully'}), 200
-    except Beverage.DoesNotExist:
-        return jsonify({'error': 'Beverage not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
+    if admin_check(user_id=current_user.id):
+        try:
+            data = request.get_json()
+            try:
+                objectId = ObjectId(name)
+                beverage = Beverage.objects.get(id=objectId)
+            except Exception:
+                beverage = Beverage.objects.get(name=name)
+            for key, value in data.items():
+                if key in beverage:
+                    setattr(beverage, key, value)
+            beverage.save()
+            # 200 OK
+            return Status.updated()
+        except Beverage.DoesNotExist:
+            # 404 Not found
+            return Status.not_found()
+        except Exception:
+            # 500 Internal server error
+            return Status.error()
+    else:
+        # 403 Forbidden
+        return Status.does_not_have_access()
+
+
+@app.route("/api/v1/beverages/<name>", methods=["DELETE"])
+@jwt_required()
+def delete_beverages(name):
+    """
+    Deletes brand based on name or id
+    :param name:
+    :return:
+    """
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    if admin_check(user_id=current_user.id):
+        try:
+            try:
+                objectId = ObjectId(name)
+                beverage = Beverage.objects.get(id=objectId)
+            except Exception:
+                beverage = Beverage.objects.get(name=name)
+            beverage.delete()
+            # 200 OK
+            return Status.deleted()
+        except Beverage.DoesNotExist:
+            # 404 Not found
+            return Status.not_found()
+        except Exception:
+            # 500 Internal server error
+            return Status.error()
+    else:
+        # 403 Forbidden
+        return Status.does_not_have_access()

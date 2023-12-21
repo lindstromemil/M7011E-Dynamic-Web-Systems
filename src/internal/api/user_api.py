@@ -13,6 +13,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from mongoengine import Q
+from http import HTTPStatus
 
 
 @app.route("/api/v1/users", methods=["POST"])
@@ -67,8 +68,25 @@ def get_me():
 
 @app.route("/api/v1/users/<name>", methods=["GET"])
 def get_user(name):
-    user = User.objects(username=name).first()
-    return jsonify(user)
+    """
+        Get user based on name
+        :param name:
+        :return User:
+        """
+    try:
+        try:
+            objectId = ObjectId(name)
+            user = User.objects.get(id=objectId)
+        except Exception:
+            user = User.objects.get(name__icontains=name)
+        # 200 OK
+        return jsonify(user), HTTPStatus.OK
+    except User.DoesNotExist:
+        # 404 Not found
+        return Status.not_found()
+    except Exception:
+        # 500 Internal server error
+        return Status.error()
 
 
 @app.route("/api/v1/users", methods=["GET"])
@@ -91,7 +109,8 @@ def get_all_user():
 
     results = results.limit(size).skip((page - 1) * size)
     user_list = [brand.to_mongo().to_dict() for brand in results]
-    return jsonify(user_list)
+    # 200 OK
+    return jsonify(user_list), HTTPStatus.OK
 
 
 @app.route('/api/v1/users/<user_id>/likes', methods=["GET"])

@@ -1,5 +1,5 @@
 import unittest
-from src.internal.models.follow import FollowedBy, Follows
+from src.internal.models.follow import Followers, Follows
 from src.internal.models.user import User
 from src.internal import app
 
@@ -42,7 +42,7 @@ class TesTFollow(unittest.TestCase):
         u2 = User.objects.get(username="second").id
 
         follow = Follows(user_id=u1, followed_id=u2)
-        followBy = FollowedBy(user_id=u2, follower_id=u1)
+        followBy = Followers(user_id=u2, follower_id=u1)
         follow.save()
         followBy.save()
 

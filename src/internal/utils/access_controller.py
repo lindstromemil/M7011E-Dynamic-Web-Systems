@@ -1,7 +1,7 @@
 from flask import jsonify
 from src.internal.utils.status_messages import Status
 from src.internal.models.admin import Admin
-from src.internal.models.follow import FollowedBy, Follows
+from src.internal.models.follow import Followers, Follows
 from src.internal.models.like import Like
 from src.internal.models.rating import Rating
 from src.internal.models.user import User
@@ -62,14 +62,14 @@ def ratings_access_check(sender_id, rating_id):
 def follow_access_check(sender_id, user_id, target_id):
     try:
         follow = Follows.objects.get(user_id=user_id, followed_id=target_id)
-        followBy = FollowedBy.objects.get(user_id=target_id, follower_id=user_id)
+        followBy = Followers.objects.get(user_id=target_id, follower_id=user_id)
         if ((sender_id == user_id) or admin_check(sender_id) or super_admin_check(sender_id)):
             return False
         else:
             return True
     except Follows.DoesNotExist:
         return Status.not_found()
-    except FollowedBy.DoesNotExist:
+    except Followers.DoesNotExist:
         return Status.not_found()
     
 def like_access_check(sender_id, like_id):

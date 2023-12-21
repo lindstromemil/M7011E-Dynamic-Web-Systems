@@ -20,7 +20,7 @@ export class NavbarComponent {
   @Input({ transform: booleanAttribute }) thirdSelected!: boolean;
 
   logout(): void {
-    this.cookieService.set('_id', "");
+    this.cookieService.set('token', "");
     this.router.navigate(['login']);
   }
 

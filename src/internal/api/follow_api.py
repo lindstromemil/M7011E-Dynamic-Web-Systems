@@ -1,7 +1,7 @@
 from flask import request
 from src.internal.utils.status_messages import Status
 from src.internal.utils.access_controller import admin_check, does_user_exist, follow_access_check, super_admin_check, user_access_check
-from src.internal.models.follow import FollowedBy, Follows
+from src.internal.models.follow import Followers, Follows
 from src.internal.models.user import User
 from src.internal import app
 
@@ -25,10 +25,10 @@ def create_follow():
     
     try:
         Follows.objects.get(user_id=first_user, followed_id=second_user)
-        FollowedBy.objects.get(user_id=second_user, follower_id=first_user)
-    except Follows.DoesNotExist or FollowedBy.DoesNotExist:
+        Followers.objects.get(user_id=second_user, follower_id=first_user)
+    except Follows.DoesNotExist or Followers.DoesNotExist:
         follow = Follows(user_id=first_user, followed_id=second_user)
-        followBy = FollowedBy(user_id=second_user, follower_id=first_user)
+        followBy = Followers(user_id=second_user, follower_id=first_user)
         follow.save()
         followBy.save()
         return Status.created()
@@ -47,7 +47,7 @@ def delete_follow():
         return Status.does_not_have_access()
 
     follow = Follows.objects.get(user_id=data["user_id"], followed_id=data["target_id"])
-    followBy = FollowedBy.objects.get(user_id=data["target_id"], follower_id=data["user_id"])
+    followBy = Followers.objects.get(user_id=data["target_id"], follower_id=data["user_id"])
     follow.delete()
     followBy.delete()
     return Status.deleted()

@@ -3,11 +3,11 @@ from mongoengine import Document, ReferenceField
 from src.internal.models.user import User
 
 
-class FollowedBy(Document):
+class Followers(Document):
     user_id = ReferenceField(User)
     follower_id = ReferenceField(User)
 
-    meta = {"collection": "followed_by"}
+    meta = {"collection": "followers"}
 
 
 class Follows(Document):

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {UserService} from 'src/app/services/user.service'
 import { User } from '../models/user.model';
+import {AuthService} from "../services/auth.service";
 
 @Component({
   selector: 'app-activity',
@@ -12,9 +13,10 @@ export class ActivityComponent implements OnInit {
 
 
   constructor(
-    private userAPI: UserService
+    private userAPI: UserService,
+    private authService: AuthService
   ) {
-
+    authService.ngOnInit();
   }
 
   ngOnInit(): void {

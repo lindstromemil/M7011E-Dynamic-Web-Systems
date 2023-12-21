@@ -39,9 +39,16 @@ export class IndividualEntriesComponent implements OnInit {
   private route = inject(ActivatedRoute)
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id: string = this.route.snapshot.paramMap.get('id') || "";
     if (id == 'test') {
       this.beverageService.getBeverages().subscribe((data: Beverage[]) => {
+        this.beverage = data[0];
+        this.titleService.setTitle(this.beverage.name);
+      });
+    }
+    else {
+      this.beverageService.getBeverages(id).subscribe((data: Beverage[]) => {
+        console.log(data);
         this.beverage = data[0];
         this.titleService.setTitle(this.beverage.name);
       });

@@ -1,0 +1,17 @@
+<app-navbar firstSelected="false" secondSelected="false" thirdSelected="false"></app-navbar>
+
+<body>
+    <div class="profile-container">
+        <div *ngIf="passwordChanged" class="password-changed">
+          <h2>Password changed!</h2>
+        </div>
+        <h2>User Profile</h2>
+
+        <!-- Input field for the new password -->
+        <label for="newPassword">New Password:</label>
+        <input type="password" id="newPassword" class="password-input" placeholder="Enter new password" required [(ngModel)]="newPassword">
+
+        <button class="action-button delete-button" (click)="deleteProfile()">Delete Profile</button>
+        <button class="action-button change-password-button" (click)="changePassword()">Change Password</button>
+    </div>
+</body>

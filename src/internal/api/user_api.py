@@ -14,6 +14,7 @@ from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from mongoengine import Q
 from http import HTTPStatus
+import time
 
 
 @app.route("/api/v1/users", methods=["POST"])
@@ -48,7 +49,8 @@ def login_user(username, password):
     user = User.objects(username=username, password=password).first()
     if user is None:
         return Status.not_found()
-    additional_claims = {"currentTime": user.created_at}
+    milli_sec = int(round(time.time() * 1000))
+    additional_claims = {"currentTime": milli_sec}
     access_token = create_access_token(identity=user.username, additional_claims=additional_claims)
     return jsonify(access_token=access_token)
 
@@ -127,13 +129,13 @@ def get_all_user_likes(user_id):
 @app.route("/api/v1/users/<user_id>", methods=["PATCH"])
 @jwt_required()
 def update_user(user_id):
-    headers = request.headers
+    current_user = get_jwt_identity()
     data = request.get_json()
 
-    if does_user_exist(headers["sender_id"]) is None:
+    if does_user_exist(current_user) is None:
         return Status.not_loged_in()
 
-    if user_access_check(headers["sender_id"], data["id"]):
+    if user_access_check(current_user, user_id):
         return Status.does_not_have_access()
 
     user = User.objects.get(id=user_id)
@@ -150,13 +152,13 @@ def update_user(user_id):
 @app.route("/api/v1/users/<name>", methods=["DELETE"])
 @jwt_required()
 def delete_user(name):
-    headers = request.headers
-    if does_user_exist(headers["sender_id"]) is None:
+    current_user = get_jwt_identity()
+    if does_user_exist(current_user) is None:
         return Status.not_loged_in()
     
     try:
         user = User.objects.get(username=name)
-        if user_access_check(headers["sender_id"], user.id):
+        if user_access_check(current_user, user.id):
             return Status.does_not_have_access()
     except User.DoesNotExist:
         return Status.not_found()

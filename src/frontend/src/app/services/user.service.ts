@@ -36,4 +36,17 @@ export class UserService {
 
       return this.http.get<User>(environment.baseUrl+"/users/me", { headers: header });
     }
+
+    update_password(newPass: string, userId: string): Observable<string> {
+      const header: {Authorization: string} = { 'Authorization': `Bearer ${this.cookieService.get('token')}` }
+      const body = {
+      'password': `${newPass}`
+      };
+      return this.http.patch<string>(environment.baseUrl+"/users/"+userId, body, { headers: header });
+    }
+
+    delete_user(username: string): Observable<string> {
+      const header: {Authorization: string} = { 'Authorization': `Bearer ${this.cookieService.get('token')}` }
+      return this.http.delete<string>(environment.baseUrl+"/users/"+username, { headers: header });
+    }
   }

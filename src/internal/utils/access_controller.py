@@ -10,22 +10,25 @@ from src.internal.models.user import User
 def does_user_exist(user_id):
     return User.objects.get(id=user_id)
 
+
 def does_admin_exist(admin_id):
     return Admin.objects.get(user_id=admin_id)
+
 
 def admin_check(user_id):
     try:
         admin = Admin.objects.get(user_id=user_id)
-        if (admin.access == "admin"):
+        if admin.access == "admin" or admin.access == "super_admin":
             return True
         return False
     except Exception as e:
         return False
 
+
 def super_admin_check(user_id):
     try:
         admin = Admin.objects.get(user_id=user_id)
-        if (admin.access == "super_admin"):
+        if admin.access == "super_admin":
             return True
         return False
     except Exception as e:
@@ -38,8 +41,8 @@ def user_access_check(sender_id, user_id):
         target_user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         return Status.not_found()
-    
-    if (current_user == target_user or admin_check(current_user.id) or super_admin_check(current_user.id)):
+
+    if current_user == target_user or admin_check(current_user.id) or super_admin_check(current_user.id):
         return False
     else:
         return True
@@ -53,17 +56,18 @@ def ratings_access_check(sender_id, rating_id):
         return Status.not_found()
     except Rating.DoesNotExist:
         return Status.not_found()
-    
-    if (current_user == target_rating.user_id or admin_check(current_user.id) or super_admin_check(current_user.id)):
+
+    if current_user == target_rating.user_id or admin_check(current_user.id) or super_admin_check(current_user.id):
         return False
     else:
         return True
-    
+
+
 def follow_access_check(sender_id, user_id, target_id):
     try:
         follow = Follows.objects.get(user_id=user_id, followed_id=target_id)
         followBy = Followers.objects.get(user_id=target_id, follower_id=user_id)
-        if ((sender_id == user_id) or admin_check(sender_id) or super_admin_check(sender_id)):
+        if (sender_id == user_id) or admin_check(sender_id) or super_admin_check(sender_id):
             return False
         else:
             return True
@@ -71,7 +75,8 @@ def follow_access_check(sender_id, user_id, target_id):
         return Status.not_found()
     except Followers.DoesNotExist:
         return Status.not_found()
-    
+
+
 def like_access_check(sender_id, like_id):
     try:
         user = User.objects.get(id=sender_id)
@@ -80,8 +85,8 @@ def like_access_check(sender_id, like_id):
         return jsonify("User does not exist")
     except Like.DoesNotExist:
         return jsonify("Like does not exist")
-    
-    if (user == like.user_id or admin_check(sender_id) or super_admin_check(sender_id)):
+
+    if user == like.user_id or admin_check(sender_id) or super_admin_check(sender_id):
         return False
     else:
         return True

@@ -1,54 +1,147 @@
-from flask import request
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from mongoengine import Q
+from bson import ObjectId
+import HTTPStatus
 from src.internal.utils.status_messages import Status
-from src.internal.utils.access_controller import admin_check, does_user_exist, follow_access_check, super_admin_check, user_access_check
+from src.internal.utils.access_controller import (
+    admin_check,
+    does_user_exist,
+    follow_access_check,
+    super_admin_check,
+    user_access_check,
+)
 from src.internal.models.follow import Followers, Follows
 from src.internal.models.user import User
 from src.internal import app
 
 
-@app.route('/api/v1/follow/create', methods=["POST"])
+@app.route("/api/v1/follows", methods=["POST"])
+@jwt_required()
 def create_follow():
-    headers = request.headers
-    data = request.get_json()
-
-    if does_user_exist(headers["sender_id"]) is None:
-        return Status.not_loged_in()
-
     try:
-        first_user = User.objects.get(id=data["user_id"])
-        second_user = User.objects.get(id=data["target_id"])
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_found()
-    
-    if user_access_check(headers["sender_id"], first_user.id):
-        return Status.does_not_have_access()
-    
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
+    data = request.get_json()
     try:
-        Follows.objects.get(user_id=first_user, followed_id=second_user)
-        Followers.objects.get(user_id=second_user, follower_id=first_user)
+        target_user = User.objects.get(username=data["target_username"])
+    except User.DoesNotExist:
+        # 404 Not Found
+        return Status.not_found()
+
+    if target_user.id == current_user.id:
+        # 400 Bad Request
+        return Status.bad_request()
+
+    try:
+        Follows.objects.get(user_id=current_user.id, followed_id=target_user.id)
+        Followers.objects.get(user_id=current_user.id, follower_id=target_user.id)
     except Follows.DoesNotExist or Followers.DoesNotExist:
-        follow = Follows(user_id=first_user, followed_id=second_user)
-        followBy = Followers(user_id=second_user, follower_id=first_user)
+        follow = Follows(user_id=current_user, followed_id=target_user)
+        followBy = Followers(user_id=target_user, follower_id=current_user)
         follow.save()
         followBy.save()
         return Status.created()
+    # 409 Conflict
     return Status.already_exists()
 
 
-@app.route('/api/v1/follow/delete', methods=["DELETE"])
-def delete_follow():
-    headers = request.headers
+@app.route("/api/v1/follows", methods=["GET"])
+def get_follows():
+    """
+    Gets all users the given user is following
 
-    if does_user_exist(headers["sender_id"]) is None:
-        return Status.not_loged_in()
+    :param id: user_id
+    :return users[]:
+    """
+    query = request.args.get("q", type=str, default="")
+    size = request.args.get("size", type=int, default=0)
+    page = request.args.get("page", type=int, default=1)
+    if page == 0:
+        page = 1
 
-    data = request.get_json()
-    if follow_access_check(headers["sender_id"], data["user_id"], data["target_id"]):
-        return Status.does_not_have_access()
+    if query == "":
+        # 400 Bad Request
+        # Should not be empty
+        return Status.bad_request()
 
-    follow = Follows.objects.get(user_id=data["user_id"], followed_id=data["target_id"])
-    followBy = Followers.objects.get(user_id=data["target_id"], follower_id=data["user_id"])
-    follow.delete()
-    followBy.delete()
-    return Status.deleted()
+    try:
+        objectId = ObjectId(query)
+        results = Follows.objects(Q(id=objectId))
+    except Exception:
+        # 401, if objectId is invalid
+        return Status.bad_request()
 
+    results = results.limit(size).skip((page - 1) * size)
+
+    usersList = [follow.followed_id.to_mongo().to_dict() for follow in results]
+    # 200 OK
+    return jsonify(usersList), HTTPStatus.OK
+
+
+@app.route("/api/v1/followers", methods=["GET"])
+def get_followers():
+    """
+    Gets all users the given user is following
+
+    :param id: user_id
+    :return users[]:
+    """
+    query = request.args.get("q", type=str, default="")
+    size = request.args.get("size", type=int, default=0)
+    page = request.args.get("page", type=int, default=1)
+    if page == 0:
+        page = 1
+
+    if query == "":
+        # 400 Bad Request
+        # Should not be empty
+        return Status.bad_request()
+
+    try:
+        objectId = ObjectId(query)
+        results = Followers.objects(Q(id=objectId))
+    except Exception:
+        # 401, if objectId is invalid
+        return Status.bad_request()
+
+    results = results.limit(size).skip((page - 1) * size)
+
+    usersList = [follow.follower_id.to_mongo().to_dict() for follow in results]
+    # 200 OK
+    return jsonify(usersList), HTTPStatus.OK
+
+
+@app.route("/api/v1/follows/<name>", methods=["DELETE"])
+@jwt_required()
+def delete_follow(name):
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
+    try:
+        try:
+            objectId = ObjectId(name)
+            follow = Follows.objects.get(user_id=current_user.id, followed_id=objectId)
+            follower = Followers.objects.get(user_id=objectId, follower_id=current_user.id)
+        except Exception:
+            user = User.objects.get(username=name)
+            follow = Followers.objects.get(user_id=current_user.id, followed_id=user.id)
+            follower = Followers.objects.get(user_id=user.id, follower_id=current_user.id)
+        follow.delete()
+        follower.delete()
+        # 200 OK
+        return Status.deleted()
+    except Follows.DoesNotExist:
+        # 404 Not found
+        return Status.not_found()
+    except Exception:
+        # 500 Internal server error
+        return Status.error()

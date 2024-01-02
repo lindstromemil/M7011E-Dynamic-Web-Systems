@@ -1,3 +1,46 @@
 <app-navbar firstSelected="false" secondSelected="false" thirdSelected="true"></app-navbar>
 
-<p>browse works!</p>
+<body>
+  <h2>Browse Beverages</h2>
+  <div class="search-field">
+    <mat-form-field color="warn">
+      <mat-label>Search</mat-label>
+      <input matInput [formControl]="searchInput">
+    </mat-form-field>
+  </div>
+
+  <div class="beverage-grid">
+    <div *ngFor="let item of beverages">
+      <div class="beverage-card" (click)="navigateToBeveragePage(item.name)">
+        <div class="image_wrapper">
+          <img src="{{item.image_path}}" alt="{{item.name}}" class="beverage-image">
+        </div>
+        <div class="beverage-info">
+          <h2>{{item.name}}</h2>
+          <p>{{item.beverageType}}</p>
+          <div class="spinner-div">
+            <h3>Bitterness</h3>
+<!--            <mat-progress-spinner [diameter]="40" mode="determinate" class="spinner" color="warn"-->
+<!--                                [value]="convertToPercentage(item.bitterness)"></mat-progress-spinner>-->
+            <div class="quarter-circle" [style.background]="'conic-gradient(transparent 0%, orange 0%, orange ' + convertToPercentage(item.bitterness)+ '%, transparent 0%)'"></div>
+          </div>
+          <div class="spinner-div">
+            <h3>Sweetness</h3>
+<!--            <mat-progress-spinner [diameter]="40" mode="determinate" class="spinner" color="warn"-->
+<!--                                [value]="convertToPercentage(item.sweetness)"></mat-progress-spinner>-->
+            <div class="quarter-circle" [style.background]="'conic-gradient(transparent 0%, red 0%, red ' + convertToPercentage(item.sweetness)+ '%, transparent 0%)'"></div>
+          </div>
+          <div class="spinner-div">
+            <h3>Fullness</h3>
+<!--            <mat-progress-spinner [diameter]="40" mode="determinate" class="spinner" color="warn"-->
+<!--                                [value]="convertToPercentage(item.fullness)"></mat-progress-spinner>-->
+            <div class="quarter-circle" [style.background]="'conic-gradient(transparent 0%, green 0%, green ' + convertToPercentage(item.fullness)+ '%, transparent 0%)'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="loading-message" *ngIf="loading">
+    <h2>Loading...</h2>
+  </div>
+</body>

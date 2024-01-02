@@ -25,7 +25,6 @@ export class AuthService implements OnInit {
       } else {
         this.userService.get_me().subscribe(
           (user: User) => {
-            console.log("valid token");
             this.user_id = user._id.$oid.toString();
             this.username = user.username;
           },

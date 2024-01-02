@@ -57,7 +57,7 @@ def create_beverage():
 @app.route("/api/v1/beverages", methods=["GET"])
 def get_beverage():
     query = request.args.get("q", type=str, default="")
-    size = request.args.get("size", type=int, default=0)
+    size = request.args.get("size", type=int, default=10)
     page = request.args.get("page", type=int, default=1)
     if page == 0:
         page = 1

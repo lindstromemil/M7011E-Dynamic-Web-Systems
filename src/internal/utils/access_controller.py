@@ -7,8 +7,8 @@ from src.internal.models.rating import Rating
 from src.internal.models.user import User
 
 
-def does_user_exist(user_id):
-    return User.objects.get(id=user_id)
+def does_user_exist(username):
+    return User.objects.get(username=username)
 
 
 def does_admin_exist(admin_id):
@@ -35,9 +35,9 @@ def super_admin_check(user_id):
         return False
 
 
-def user_access_check(sender_id, user_id):
+def user_access_check(username, user_id):
     try:
-        current_user = User.objects.get(id=sender_id)
+        current_user = User.objects.get(username=username)
         target_user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         return Status.not_found()

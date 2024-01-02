@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import {HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import {SettingsComponent} from "./settings/settings.component";
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { CookieService } from 'ngx-cookie-service';
     BreweryComponent,
     ActivityComponent,
     ProfileComponent,
-    NavbarComponent
+    NavbarComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,

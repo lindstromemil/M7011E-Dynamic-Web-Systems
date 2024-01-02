@@ -24,6 +24,10 @@ export class NavbarComponent {
     this.router.navigate(['login']);
   }
 
+  settings(): void {
+    this.router.navigate(['settings']);
+  }
+
   navigateToActivity(): void {
       this.router.navigate(['activity']);
   }

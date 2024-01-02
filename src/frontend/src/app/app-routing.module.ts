@@ -8,6 +8,7 @@ import { IndividualEntriesComponent } from './individual-entries/individual-entr
 import { BreweryComponent } from './brewery/brewery.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ProfileComponent } from './profile/profile.component';
+import {SettingsComponent} from "./settings/settings.component";
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'brewery', component: BreweryComponent },
   { path: 'activity', component: ActivityComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'settings', component: SettingsComponent },
   { path: '**', component: LoginComponent},
 ];
 

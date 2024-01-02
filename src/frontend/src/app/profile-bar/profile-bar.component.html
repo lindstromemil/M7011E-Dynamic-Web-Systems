@@ -1,0 +1,51 @@
+<div class="profile-header">
+  <h1>{{name}}</h1>
+  <div *ngIf="!isMyProfile && finished_loading">
+    <div *ngIf="isFollowing">
+      <button class="following-button" (click)="unfollow()">Following</button>
+    </div>
+    <div *ngIf="!isFollowing">
+      <button class="follow-button" (click)="follow()">Follow</button>
+    </div>
+  </div>
+</div>
+<div class="navbar">
+  <div class="nav-buttons">
+    <div class="tooltip">
+      <button *ngIf="overviewSelected; else overviewNotSelected" class="selected-nav-button" (click)="overview()"><span
+        class="material-symbols-outlined">person</span></button>
+      <ng-template #overviewNotSelected>
+        <button class="nav-button" (click)="overview()"><span class="material-symbols-outlined">person</span></button>
+      </ng-template>
+      <span class="tooltiptext">Overview</span>
+    </div>
+
+    <div class="tooltip">
+      <button *ngIf="listSelected; else listNotSelected" class="selected-nav-button" (click)="list()"><span
+        class="material-symbols-outlined">list</span></button>
+      <ng-template #listNotSelected>
+        <button class="nav-button" (click)="list()"><span class="material-symbols-outlined">list</span></button>
+      </ng-template>
+      <span class="tooltiptext">List</span>
+    </div>
+
+    <div class="tooltip">
+      <button *ngIf="socialSelected; else socialNotSelected" class="selected-nav-button" (click)="social()"><span
+        class="material-symbols-outlined">groups</span></button>
+      <ng-template #socialNotSelected>
+        <button class="nav-button" (click)="social()"><span class="material-symbols-outlined">groups</span></button>
+      </ng-template>
+      <span class="tooltiptext">Social</span>
+    </div>
+
+    <div class="tooltip">
+      <button *ngIf="reviewsSelected; else reviewsNotSelected" class="selected-nav-button" (click)="reviews()"><span
+        class="material-symbols-outlined">reviews</span></button>
+      <ng-template #reviewsNotSelected>
+        <button class="nav-button" (click)="reviews()"><span class="material-symbols-outlined">reviews</span></button>
+      </ng-template>
+      <span class="tooltiptext">Reviews</span>
+    </div>
+
+  </div>
+</div>

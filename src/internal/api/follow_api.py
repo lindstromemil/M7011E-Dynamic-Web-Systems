@@ -66,7 +66,7 @@ def get_follows():
 
     try:
         objectId = ObjectId(query)
-        results = Follows.objects(Q(id=objectId))
+        results = Follows.objects(Q(user_id=objectId))
     except Exception:
         # 401, if objectId is invalid
         return Status.bad_request()
@@ -99,7 +99,7 @@ def get_followers():
 
     try:
         objectId = ObjectId(query)
-        results = Followers.objects(Q(id=objectId))
+        results = Followers.objects(Q(user_id=objectId))
     except Exception:
         # 401, if objectId is invalid
         return Status.bad_request()
@@ -128,7 +128,7 @@ def delete_follow(name):
             follower = Followers.objects.get(user_id=objectId, follower_id=current_user.id)
         except Exception:
             user = User.objects.get(username=name)
-            follow = Followers.objects.get(user_id=current_user.id, followed_id=user.id)
+            follow = Follows.objects.get(user_id=current_user.id, followed_id=user.id)
             follower = Followers.objects.get(user_id=user.id, follower_id=current_user.id)
 
         follow.delete()

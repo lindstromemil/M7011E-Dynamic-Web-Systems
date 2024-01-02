@@ -14,10 +14,16 @@ import { UserService} from './services/user.service'
 import { NavbarComponent } from './navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import {SettingsComponent} from "./settings/settings.component";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {MatInputModule} from "@angular/material/input";
+import {ListComponent} from "./list/list.component";
+import {SocialComponent} from "./social/social.component";
+import {ReviewsComponent} from "./reviews/reviews.component";
+import {ProfileBarComponent} from "./profile-bar/profile-bar.component";
 
 @NgModule({
   declarations: [
@@ -30,7 +36,11 @@ import {SettingsComponent} from "./settings/settings.component";
     ActivityComponent,
     ProfileComponent,
     NavbarComponent,
-    SettingsComponent
+    SettingsComponent,
+    ListComponent,
+    SocialComponent,
+    ReviewsComponent,
+    ProfileBarComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +48,10 @@ import {SettingsComponent} from "./settings/settings.component";
     AppRoutingModule,
     BrowserAnimationsModule,
     MatButtonModule,
-    FormsModule
+    FormsModule,
+    MatProgressSpinnerModule,
+    MatInputModule,
+    ReactiveFormsModule
   ],
   providers: [CookieService, UserService],
   bootstrap: [AppComponent]

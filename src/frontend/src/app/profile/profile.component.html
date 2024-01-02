@@ -1,3 +1,21 @@
 <app-navbar firstSelected="false" secondSelected="true" thirdSelected="false"></app-navbar>
+<app-profile-bar overviewSelected="true" listSelected="false" socialSelected="false"
+                 reviewsSelected="false"></app-profile-bar>
 
-<p>profile works!</p>
+
+<body>
+<h2>Activity</h2>
+<ul class="beverage-list">
+  <div *ngFor="let item of activity">
+    <li class="beverage-item">
+      <div class="image_wrapper" (click)="navigateToBeveragePage(item.beverage.name)">
+        <img src="{{item.beverage.image_path}}" alt="{{item.beverage.name}}" class="beverage-image">
+      </div>
+      <div class="beverage-info">
+        <div class="beverage-name">{{item.beverage.name}}</div>
+        <div class="timestamp">{{item.created_at}}</div>
+      </div>
+    </li>
+  </div>
+</ul>
+</body>

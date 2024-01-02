@@ -1,0 +1,71 @@
+<app-navbar firstSelected="false" secondSelected="true" thirdSelected="false"></app-navbar>
+<app-profile-bar overviewSelected="false" listSelected="true" socialSelected="false"
+                 reviewsSelected="false"></app-profile-bar>
+
+<body>
+<h2>Beers planned</h2>
+<div class="planned-grid">
+  <div *ngFor="let item of beers_planned">
+    <div class="beverage-card" (click)="navigateToBeveragePage(item.name)">
+      <div class="image_wrapper">
+        <img src="{{item.image_path}}" alt="{{item.name}}" class="beverage-image">
+      </div>
+      <div class="beverage-info">
+        <h2>{{item.name}}</h2>
+        <p>{{item.beverageType}}</p>
+        <div class="spinner-div">
+          <h3>Bitterness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, orange 0%, orange ' + convertToPercentage(item.bitterness)+ '%, transparent 0%)'"></div>
+        </div>
+        <div class="spinner-div">
+          <h3>Sweetness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, red 0%, red ' + convertToPercentage(item.sweetness)+ '%, transparent 0%)'"></div>
+        </div>
+        <div class="spinner-div">
+          <h3>Fullness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, green 0%, green ' + convertToPercentage(item.fullness)+ '%, transparent 0%)'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="beers_planned.length === 0">
+    <h2>Sorry, we could not find anything</h2>
+  </div>
+</div>
+
+<h2 style="padding-top: 40px">Beers had</h2>
+<div class="had-grid">
+  <div *ngFor="let item of beers_had">
+    <div class="beverage-card" (click)="navigateToBeveragePage(item.name)">
+      <div class="image_wrapper">
+        <img src="{{item.image_path}}" alt="{{item.name}}" class="beverage-image">
+      </div>
+      <div class="beverage-info">
+        <h2>{{item.name}}</h2>
+        <p>{{item.beverageType}}</p>
+        <div class="spinner-div">
+          <h3>Bitterness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, orange 0%, orange ' + convertToPercentage(item.bitterness)+ '%, transparent 0%)'"></div>
+        </div>
+        <div class="spinner-div">
+          <h3>Sweetness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, red 0%, red ' + convertToPercentage(item.sweetness)+ '%, transparent 0%)'"></div>
+        </div>
+        <div class="spinner-div">
+          <h3>Fullness</h3>
+          <div class="quarter-circle"
+               [style.background]="'conic-gradient(transparent 0%, green 0%, green ' + convertToPercentage(item.fullness)+ '%, transparent 0%)'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="beers_had.length === 0">
+    <h2>Sorry, we could not find anything</h2>
+  </div>
+</div>
+</body>

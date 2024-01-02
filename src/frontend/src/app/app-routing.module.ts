@@ -9,6 +9,9 @@ import { BreweryComponent } from './brewery/brewery.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ProfileComponent } from './profile/profile.component';
 import {SettingsComponent} from "./settings/settings.component";
+import {ListComponent} from "./list/list.component";
+import {SocialComponent} from "./social/social.component";
+import {ReviewsComponent} from "./reviews/reviews.component";
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -17,7 +20,10 @@ const routes: Routes = [
   { path: 'entry', component: IndividualEntriesComponent },
   { path: 'brewery', component: BreweryComponent },
   { path: 'activity', component: ActivityComponent },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'user/:username', component: ProfileComponent },
+  { path: 'user/:username/list', component: ListComponent },
+  { path: 'user/:username/social', component: SocialComponent },
+  { path: 'user/:username/reviews', component: ReviewsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: '**', component: LoginComponent},
 ];

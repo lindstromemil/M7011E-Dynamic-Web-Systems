@@ -79,7 +79,7 @@ def get_user(name):
             objectId = ObjectId(name)
             user = User.objects.get(id=objectId)
         except Exception:
-            user = User.objects.get(name__icontains=name)
+            user = User.objects.get(username=name)
         # 200 OK
         return jsonify(user), HTTPStatus.OK
     except User.DoesNotExist:

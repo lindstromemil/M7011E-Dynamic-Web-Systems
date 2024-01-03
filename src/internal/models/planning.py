@@ -6,6 +6,6 @@ from src.internal.models.user import User
 
 class Planning(Document):
     user_id = ReferenceField(User)
-    beer_id = ReferenceField(Beverage)
+    beverage_id = ReferenceField(Beverage)
 
     meta = {"collection": "planning"}

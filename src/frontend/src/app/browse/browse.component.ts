@@ -13,7 +13,7 @@ import {debounceTime} from "rxjs";
 export class BrowseComponent implements OnInit {
   beverages: Beverage[] = [];
   loading: boolean = false; // Indicates if new data is being loaded
-  currentPage: number = 0; // Track the current page
+  currentPage: number = 1; // Track the current page
   searchInput: FormControl = new FormControl();
   data: any = {};
 
@@ -24,7 +24,7 @@ export class BrowseComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.load_more_content(0, "");
+    this.load_more_content(1, "");
     this.searchInput.valueChanges
     .pipe(
       debounceTime(300)
@@ -65,10 +65,9 @@ export class BrowseComponent implements OnInit {
   }
 
   load_search(searchQuery : string) {
-    console.log("load search");
     this.loading = true;
     this.currentPage = 1;
-    this.beverageAPI.get_all_beverages(0, searchQuery).subscribe(
+    this.beverageAPI.get_all_beverages(1, searchQuery).subscribe(
         (beverages: Beverage[]) => {
           this.beverages = beverages;
         },

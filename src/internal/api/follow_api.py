@@ -45,6 +45,7 @@ def create_follow():
         followBy = Followers(user_id=target_user, follower_id=current_user)
         follow.save()
         followBy.save()
+        # 201 OK
         return Status.created()
     # 409 Conflict
     return Status.already_exists()

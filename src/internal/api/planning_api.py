@@ -34,8 +34,6 @@ def create_planning():
 
     try:
         data = request.get_json()
-        """if check_user(str(data["user_id"])) is not None:
-            return jsonify({"message": "User already has a planning list"}"""
         if check_beverage(str(data["beverage_id"])) is None:
             return jsonify({"message": "Beverage does not exist"})
         if check_beverage_in_planning(str(data["user_id"]), str(data["beverage_id"])) is None:
@@ -78,7 +76,7 @@ def get_planning(id):
         planning = Planning.objects.filter(user_id=str(id))
         if planning:
             planning_data = [item.to_mongo().to_dict() for item in planning]
-            return jsonify(planning_data)
+            return jsonify(planning_data), HTTPStatus.OK
         else:
             return jsonify({"No planning created for this user": str(e)}), 404
     except Exception as e:

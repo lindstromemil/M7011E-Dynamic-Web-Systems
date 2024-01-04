@@ -22,7 +22,7 @@ from mongoengine import Q
 from src.internal.models.user import User
 
 
-@app.route('/api/v1/planning/create', methods=["POST"])
+@app.route('/api/v1/planning', methods=["POST"])
 @jwt_required()
 def create_planning():
     try:
@@ -35,15 +35,19 @@ def create_planning():
     try:
         data = request.get_json()
         if check_beverage(str(data["beverage_id"])) is None:
-            return jsonify({"message": "Beverage does not exist"})
+            # 404 Not Found
+            return Status.not_found()
         if check_beverage_in_planning(str(data["user_id"]), str(data["beverage_id"])) is None:
             new_planning = Planning(**data)
             new_planning.save()
-            return jsonify({"message": "Planning created successfully"}), 201
+            # 200 OK
+            return Status.created()
         else:
-            return jsonify({"message": "Beverage already in planning for this user"}), 409
+            # 409 Already Exists
+            return Status.already_exists()
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # 500 Internal Server Error
+        return Status.error()
 
 
 def check_user(user_id):
@@ -70,36 +74,37 @@ def check_beverage_in_planning(user_id, beverage_id):
         return None
 
 
-@app.route('/api/v1/planning/get/<id>', methods=["GET"])
+@app.route('/api/v1/planning/<id>', methods=["GET"])
 def get_planning(id):
     try:
-        planning = Planning.objects.filter(user_id=str(id))
-        if planning:
-            planning_data = [item.to_mongo().to_dict() for item in planning]
-            return jsonify(planning_data), HTTPStatus.OK
-        else:
-            return jsonify({"No planning created for this user": str(e)}), 404
+        planning = Planning.objects.get(user_id=str(id))
+        planning_data = [item.to_mongo().to_dict() for item in planning]
+        return jsonify(planning_data), HTTPStatus.OK
+    except Planning.DoesNotExist:
+        return Status.not_found()
     except Exception as e:
-        return jsonify({"Error": str(e)}), 500
+        return Status.error()
     
 
-@app.route('/api/v1/planning/get', methods=["GET"])
+@app.route('/api/v1/planning', methods=["GET"])
 def get_all_plannings():
     try:
         query = request.args.get("q", type=str, default="")
         try:
-            objectId = ObjectId(query)
-            planning = Planning.objects.get(id=objectId)
+            query = ObjectId(query)
+            results = Planning.objects(Q(user_id__icontains=query)|Q(beverage_id__icontains=query)|Q(id__icontains=query))
+            planningList = [planning.to_mongo().to_dict() for planning in results]
+            # 200 OK
+            return jsonify(planningList), HTTPStatus.OK
         except Exception:
-            planning = Planning.objects(Q(user_id__icontains=name)|Q(beverage_id__icontains=name)).first()
-        # 200 OK
-        return jsonify(planning), HTTPStatus.OK
+            # 400 Bad Request
+            return Status.bad_request()
 
     except Exception as e:
         return Status.error()
 
 
-@app.route('/api/v1/planning/update/<id>', methods=["PUT"])
+@app.route('/api/v1/planning/<id>', methods=["PUT"])
 @jwt_required()
 def update_planning(id):
     try:
@@ -130,7 +135,7 @@ def update_planning(id):
         return Status.error()
 
 
-@app.route('/api/v1/planning/delete/<id>', methods=["DELETE"])
+@app.route('/api/v1/planning/<id>', methods=["DELETE"])
 @jwt_required()
 def delete_planning(id):
     try:

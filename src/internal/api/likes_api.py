@@ -9,7 +9,8 @@ from src.internal.utils.status_messages import Status
 from http import HTTPStatus
 
 
-@app.route('/api/v1/likes/create', methods=["POST"])
+@app.route('/api/v1/likes', methods=["POST"])
+@jwt_required()
 def create_like():
     """
     This API creates a new like
@@ -26,16 +27,15 @@ def create_like():
     data = request.get_json()
     
     try:
-        user = User.objects.get(username=data["username"])
         rating = Rating.objects.get(id=data["rating_id"])
     except User.DoesNotExist or Rating.DoesNotExist:
         # 404 Not Found
         return Status.not_found()
 
     try:
-        Like.objects.get(user_id=user, rating_id=rating)
+        Like.objects.get(user_id=current_user.id, rating_id=rating.id)
     except Like.DoesNotExist:
-        like = Like(user_id=user, rating_id=rating)
+        like = Like(user_id=current_user.id, rating_id=rating)
         like.save()
         # 201 OK
         return Status.created()
@@ -44,7 +44,7 @@ def create_like():
     return Status.already_exists()
 
 #NOT NEEDED, only for testing
-@app.route('/api/v1/likes/get/<id>', methods=["GET"])
+@app.route('/api/v1/likes/<id>', methods=["GET"])
 def get_like(id):
     try:
         like = Like.objects(id=id).first()
@@ -53,13 +53,9 @@ def get_like(id):
         # 400 Bad Request
         return Status.bad_request()
 
-#NOT NEEDED, not supposed to be allowed to update a like
-@app.route('/api/v1/likes/update', methods=["PUT"])
-def update_like(data):
-    return jsonify("Updated like. NOT IMPLEMENTED")
 
-
-@app.route('/api/v1/likes/delete/<id>', methods=["DELETE"])
+@app.route('/api/v1/likes/<id>', methods=["DELETE"])
+@jwt_required()
 def delete_like(id):
     """
     Delete / remove a like

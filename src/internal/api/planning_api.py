@@ -3,7 +3,15 @@
 # Framework imports
 from flask import jsonify, request
 
+from bson import ObjectId
+
+from http import HTTPStatus
+
 from src.internal import app
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from src.internal.utils.status_messages import Status
 
 from src.internal.models.planning import Planning
 
@@ -11,9 +19,19 @@ from src.internal.models.beverage import Beverage
 
 from mongoengine import Q
 
+from src.internal.models.user import User
+
 
 @app.route('/api/v1/planning/create', methods=["POST"])
+@jwt_required()
 def create_planning():
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
     try:
         data = request.get_json()
         """if check_user(str(data["user_id"])) is not None:
@@ -48,9 +66,7 @@ def check_beverage(beverage_id):
 
 def check_beverage_in_planning(user_id, beverage_id):
     try:
-        print("hejsan")
         existing_beverage_in_planning = Planning.objects.get(user_id=user_id, beverage_id=beverage_id)
-        print(existing_beverage_in_planning.beverage_id, existing_beverage_in_planning.user_id)
         return existing_beverage_in_planning
     except Planning.DoesNotExist:
         return None
@@ -71,24 +87,69 @@ def get_planning(id):
 
 @app.route('/api/v1/planning/get', methods=["GET"])
 def get_all_plannings():
-    return "Returned all plannings. NOT IMPLEMENTED"
+    try:
+        query = request.args.get("q", type=str, default="")
+        try:
+            objectId = ObjectId(query)
+            planning = Planning.objects.get(id=objectId)
+        except Exception:
+            planning = Planning.objects(Q(user_id__icontains=name)|Q(beverage_id__icontains=name)).first()
+        # 200 OK
+        return jsonify(planning), HTTPStatus.OK
+
+    except Exception as e:
+        return Status.error()
 
 
-@app.route('/api/v1/planning/update', methods=["PUT"])
-def update_planning(data):
-    """
-    This API creates a new user
-    :param data:
-    :return:
-    """
-    return jsonify("Updated planning. NOT IMPLEMENTED")
+@app.route('/api/v1/planning/update/<id>', methods=["PUT"])
+@jwt_required()
+def update_planning(id):
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    try:
+        data = request.get_json()
+        try:
+            objectId = ObjectId(id)
+            planning = Planning.objects.get(id=objectId)
+            user_id_object = planning.user_id
+            user_id = str(user_id_object.id)
+        except Exception:
+            # 404 Not Found
+            return Status.error()
+        if user_id == data["user_id"]:
+            Planning.objects(id=objectId).update(set__beverage_id=ObjectId(data["beverage_id"]))
+            # 200 OK
+            return Status.updated()
+        else:
+            # 403
+            return Status.Unauthorized
+    except Exception:
+        # 500 Internal server error
+        return Status.error()
 
 
 @app.route('/api/v1/planning/delete/<id>', methods=["DELETE"])
+@jwt_required()
 def delete_planning(id):
-    """
-    This API creates a new user
-    :param id:
-    :return:
-    """
-    return jsonify("Deleted planning. NOT IMPLEMENTED")
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    try:
+        try:
+            Planning.objects.get(id=str(id))
+        except Exception:
+            # 404 Not Found
+            return Status.error()
+        Planning.objects(id=str(id)).delete()
+        # 200 OK
+        return Status.deleted()
+    except Exception:
+        # 500 Internal server error
+        return Status.error()

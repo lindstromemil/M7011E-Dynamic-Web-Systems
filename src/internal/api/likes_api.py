@@ -22,13 +22,8 @@ def create_like():
     except User.DoesNotExist:
         # 401 Unauthorized
         return Status.not_logged_in()
-
-    headers = request.headers
+    
     data = request.get_json()
-
-    if does_user_exist(headers["sender_id"]) is None:
-        # 404 Not Found
-        return Status.not_found()
     
     try:
         user = User.objects.get(username=data["username"])
@@ -78,10 +73,6 @@ def delete_like(id):
         # 401 Unauthorized
         return Status.not_logged_in()
     try:
-        headers = request.headers
-        if does_user_exist(headers["sender_id"]) is None:
-            # 404 Not found
-            return Status.not_found()
         
         like = Like.objects.get(id=id)
         like.delete()

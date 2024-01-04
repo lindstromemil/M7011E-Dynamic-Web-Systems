@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from mongoengine import Q
 from bson import ObjectId
-import HTTPStatus
+from http import HTTPStatus
 from src.internal.utils.status_messages import Status
 from src.internal.utils.access_controller import (
     admin_check,
@@ -45,6 +45,7 @@ def create_follow():
         followBy = Followers(user_id=target_user, follower_id=current_user)
         follow.save()
         followBy.save()
+        # 201 OK
         return Status.created()
     # 409 Conflict
     return Status.already_exists()

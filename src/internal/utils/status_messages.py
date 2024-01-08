@@ -1,5 +1,5 @@
-from http import HTTPStatus
 from flask import jsonify, make_response
+from http import HTTPStatus
 
 
 class Status:

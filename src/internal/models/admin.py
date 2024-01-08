@@ -1,5 +1,4 @@
 from mongoengine import Document, StringField, ReferenceField
-
 from src.internal.models.user import User
 
 

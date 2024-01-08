@@ -1,10 +1,10 @@
 from flask import jsonify
-from src.internal.utils.status_messages import Status
 from src.internal.models.admin import Admin
 from src.internal.models.follow import Followers, Follows
 from src.internal.models.like import Like
 from src.internal.models.rating import Rating
 from src.internal.models.user import User
+from src.internal.utils.status_messages import Status
 
 
 def does_user_exist(username):
@@ -86,7 +86,7 @@ def like_access_check(sender_id, like_id):
     except Like.DoesNotExist:
         return jsonify("Like does not exist")
 
-    if user == like.user_id or admin_check(sender_id) or super_admin_check(sender_id):
+    if user == like.user_id or admin_check(sender_id):
         return False
     else:
         return True

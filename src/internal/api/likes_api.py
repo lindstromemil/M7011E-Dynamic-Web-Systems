@@ -1,13 +1,12 @@
 from flask import jsonify, request
-from src.internal.utils.access_controller import does_user_exist, like_access_check, user_access_check
-from src.internal.models.rating import Rating
-from src.internal.models.like import Like
-from src.internal.models.user import User
-from src.internal import app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from src.internal.utils.status_messages import Status
 from http import HTTPStatus
-
+from src.internal import app
+from src.internal.models.like import Like
+from src.internal.models.rating import Rating
+from src.internal.models.user import User
+from src.internal.utils.access_controller import admin_check, like_access_check
+from src.internal.utils.status_messages import Status
 
 @app.route('/api/v1/likes', methods=["POST"])
 @jwt_required()
@@ -43,16 +42,6 @@ def create_like():
     # 409 Conflict
     return Status.already_exists()
 
-#NOT NEEDED, only for testing
-@app.route('/api/v1/likes/<id>', methods=["GET"])
-def get_like(id):
-    try:
-        like = Like.objects(id=id).first()
-        return jsonify(like), HTTPStatus.OK
-    except Exception:
-        # 400 Bad Request
-        return Status.bad_request()
-
 
 @app.route('/api/v1/likes/<id>', methods=["DELETE"])
 @jwt_required()
@@ -68,8 +57,11 @@ def delete_like(id):
     except User.DoesNotExist:
         # 401 Unauthorized
         return Status.not_logged_in()
+
+    if like_access_check(current_user.id, id):
+        return Status.does_not_have_access()
+
     try:
-        
         like = Like.objects.get(id=id)
         like.delete()
         # 200 OK

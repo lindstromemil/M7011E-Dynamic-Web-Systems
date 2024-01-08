@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 75px;
+  background-color: #f4f4f4;
+}
+
+h2 {
+  text-align: center;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.social-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s;
+  cursor: pointer;
+  justify-content: space-around;
+  width: 350px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.social-card:hover {
+  transform: scale(1.05);
+}
+
+.social-info {
+  padding: 10px;
+  text-align: center;
+}
+

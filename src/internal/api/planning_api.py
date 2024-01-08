@@ -22,6 +22,9 @@ def create_planning():
 
     try:
         data = request.get_json()
+        if str(data["user_id"]) == current_user.id:
+            # 400 Bad Request
+            return Status.bad_request()
         if check_beverage(str(data["beverage_id"])) is None:
             # 404 Not Found
             return Status.not_found()

@@ -15,9 +15,9 @@
         </div>
 
         <div class="tooltip">
-            <button *ngIf="secondSelected; else secondNotSelected" class="selected-nav-button" (click)="navigateToProfilePage()"><span class="material-symbols-outlined">image</span></button>
+            <button *ngIf="secondSelected; else secondNotSelected" class="selected-nav-button" (click)="navigateToProfilePage()"><span class="material-symbols-outlined">account_circle</span></button>
             <ng-template #secondNotSelected>
-                <button class="nav-button" (click)="navigateToProfilePage()"><span class="material-symbols-outlined">image</span></button>
+                <button class="nav-button" (click)="navigateToProfilePage()"><span class="material-symbols-outlined">account_circle</span></button>
             </ng-template>
             <span class="tooltiptext">Profile</span>
         </div>

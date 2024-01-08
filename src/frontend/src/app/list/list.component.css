@@ -8,7 +8,13 @@ h2 {
   text-align: center;
 }
 
-.beverage-grid {
+.planned-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.had-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
@@ -60,17 +66,6 @@ h2 {
 .beverage-info {
   padding: 10px;
   text-align: center;
-}
-
-.loading-message {
-  margin: auto;
-}
-
-.search-field {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
 }
 
 .image_wrapper {

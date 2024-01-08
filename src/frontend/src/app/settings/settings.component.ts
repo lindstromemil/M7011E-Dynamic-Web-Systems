@@ -25,7 +25,6 @@ export class SettingsComponent {
   deleteProfile() {
     this.userAPI.delete_user(this.authService.username).subscribe(
       () => {
-        console.log("profile deleted");
         this.cookieService.set('token', "");
         this.router.navigate(['login']);
       },
@@ -41,7 +40,6 @@ export class SettingsComponent {
     }
     this.userAPI.update_password(this.newPassword, this.authService.user_id).subscribe(
       () => {
-        console.log("Password changed");
         this.passwordChanged = true;
       },
       err => {

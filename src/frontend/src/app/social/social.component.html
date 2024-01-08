@@ -1,0 +1,25 @@
+<app-navbar firstSelected="false" secondSelected="true" thirdSelected="false"></app-navbar>
+<app-profile-bar overviewSelected="false" listSelected="false" socialSelected="true" reviewsSelected="false"></app-profile-bar>
+
+<body>
+  <h2>Followers</h2>
+  <div class="social-grid">
+    <div *ngFor="let item of followers">
+      <div class="social-card" (click)="navigateToProfilePage(item.username)">
+        <div class="social-info">
+          <h2>{{item.username}}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h2>Follows</h2>
+  <div class="social-grid">
+    <div *ngFor="let item of follows">
+      <div class="social-card" (click)="navigateToProfilePage(item.username)">
+        <div class="social-info">
+          <h2>{{item.username}}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

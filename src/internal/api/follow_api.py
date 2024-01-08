@@ -1,19 +1,13 @@
+from bson import ObjectId
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from mongoengine import Q
-from bson import ObjectId
 from http import HTTPStatus
-from src.internal.utils.status_messages import Status
-from src.internal.utils.access_controller import (
-    admin_check,
-    does_user_exist,
-    follow_access_check,
-    super_admin_check,
-    user_access_check,
-)
+from mongoengine import Q
+from src.internal import app
 from src.internal.models.follow import Followers, Follows
 from src.internal.models.user import User
-from src.internal import app
+from src.internal.utils.access_controller import admin_check
+from src.internal.utils.status_messages import Status
 
 
 @app.route("/api/v1/follows", methods=["POST"])
@@ -136,6 +130,7 @@ def delete_follow(name):
             user = User.objects.get(username=name)
             follow = Followers.objects.get(user_id=current_user.id, followed_id=user.id)
             follower = Followers.objects.get(user_id=user.id, follower_id=current_user.id)
+
         follow.delete()
         follower.delete()
         # 200 OK

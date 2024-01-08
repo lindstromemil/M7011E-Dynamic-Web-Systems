@@ -1,20 +1,14 @@
-# Python imports
-
-# Framework imports
-from http import HTTPStatus
 from bson import ObjectId
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from http import HTTPStatus
+from mongoengine import Q
+from src.internal import app
+from src.internal.models.beverage import Beverage
+from src.internal.models.brand import Brand
+from src.internal.models.user import User
 from src.internal.utils.access_controller import admin_check
 from src.internal.utils.status_messages import Status
-from mongoengine import Q
-from src.internal.models.user import User
-
-from src.internal import app
-
-from src.internal.models.beverage import Beverage
-
-from src.internal.models.brand import Brand
 
 
 @app.route("/api/v1/beverages", methods=["POST"])

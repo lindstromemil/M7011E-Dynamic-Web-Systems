@@ -1,21 +1,20 @@
-from flask import jsonify, request
+from bson import ObjectId
 from datetime import datetime
-from src.internal.utils.access_controller import *
-from src.internal.utils.status_messages import Status
-from src.internal.models.follow import Followers, Follows
-from src.internal.models.like import Like
-from src.internal.models.rating import Rating
-from src.internal.models.user import User, UserProfile
-from src.internal import app
+from flask import jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
-from bson import ObjectId
-from mongoengine import Q
 from http import HTTPStatus
+from mongoengine import Q
+from src.internal import app
+from src.internal.models.follow import Followers, Follows
+from src.internal.models.like import Like
+from src.internal.models.rating import Rating
+from src.internal.models.user import User, UserProfile
+from src.internal.utils.access_controller import *
+from src.internal.utils.status_messages import Status
 import time
-
 
 @app.route("/api/v1/users", methods=["POST"])
 @cross_origin()

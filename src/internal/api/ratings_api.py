@@ -1,15 +1,14 @@
-from flask import jsonify, request
 from datetime import datetime
-from src.internal.models.like import Like
-from src.internal.models.beverage import Beverage
-from src.internal.models.rating import Rating
-from src.internal.models.user import User
-from src.internal.utils.status_messages import Status
-from src.internal import app
-from src.internal.utils.access_controller import admin_check
-
+from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from http import HTTPStatus
+from src.internal import app
+from src.internal.models.beverage import Beverage
+from src.internal.models.like import Like
+from src.internal.models.rating import Rating
+from src.internal.models.user import User
+from src.internal.utils.access_controller import admin_check
+from src.internal.utils.status_messages import Status
 
 
 @app.route("/api/v1/ratings", methods=["POST"])

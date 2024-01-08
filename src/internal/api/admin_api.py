@@ -1,87 +1,117 @@
 from flask import jsonify, request
-from src.internal.utils.access_controller import admin_check, does_admin_exist, does_user_exist, super_admin_check
-from src.internal.utils.status_messages import Status
-from src.internal.models.admin import Admin
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.internal import app
+from src.internal.models.admin import Admin
+from src.internal.models.user import User
+from src.internal.utils.access_controller import admin_check, does_admin_exist, super_admin_check
+from src.internal.utils.status_messages import Status
 
 
-@app.route('/api/v1/admin/create', methods=["POST"])
+@app.route('/api/v1/admins', methods=["POST"])
+@jwt_required()
 def create_admin():
-    headers = request.headers
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
     data = request.get_json()
 
-    existing_user = does_user_exist(data["user_id"])
-    if existing_user is None:
-        return Status.not_found()
-
-    if admin_check(existing_user.id) or super_admin_check(existing_user.id):
+    if admin_check(data["user_id"]):
         return Status.already_a_admin()
 
-    if (data["access"] == "admin") and (admin_check(headers["sender_id"]) or super_admin_check(headers["sender_id"])):
-        admin = Admin(user_id=existing_user, access=data["access"])
+    if (data["access"] == "admin") and admin_check(current_user.id):
+        admin = Admin(user_id=data["user_id"], access=data["access"])
         admin.save()
         return Status.created()
 
-    if (data["access"] == "super_admin") and super_admin_check(headers["sender_id"]):
-        admin = Admin(user_id=existing_user, access=data["access"])
+    if (data["access"] == "super_admin") and super_admin_check(current_user.id):
+        admin = Admin(user_id=data["user_id"], access=data["access"])
         admin.save()
         return Status.created()
     
     return Status.does_not_have_access()
 
 
-@app.route('/api/v1/admin/me', methods=["POST"])
+@app.route('/api/v1/admins/me', methods=["POST"])
+@jwt_required()
 def super_admin_me():
     if (Admin.objects().count() == 0):
-        headers = request.headers
-        super = Admin(user_id=headers["sender_id"], access="super_admin")
+        try:
+            current_user = get_jwt_identity()
+            current_user = User.objects.get(username=current_user)
+        except User.DoesNotExist:
+            # 401 Unauthorized
+            return Status.not_logged_in()
+
+        super = Admin(user_id=current_user.id, access="super_admin")
         super.save()
         return Status.created()
     else:
         return Status.does_not_have_access()
 
 
-#NOT NEEDED, only for testing
-@app.route('/api/v1/admin/get/<admin_id>', methods=["GET"])
-def get_admin(admin_id):
-    admin = Admin.objects.get(user_id=admin_id)
-    return jsonify(admin)
-
-
-#Mby nice for super admins to have
-@app.route('/api/v1/admin/get', methods=["GET"])
+@app.route('/api/v1/admins', methods=["GET"])
+@jwt_required()
 def get_all_admin():
-    return jsonify(Admin.objects().all())
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
 
-
-@app.route('/api/v1/admin/update', methods=["PUT"])
-def update_admin():
-    headers = request.headers
-    data = request.get_json()
-
-    if does_admin_exist(data["admin_id"]) is None:
-        return Status.not_found()
-    
-    if (super_admin_check(headers["sender_id"])):
-        admin = Admin.objects.get(user_id=data["admin_id"])
-        setattr(admin, "access", data["access"])
-        admin.save()
-        return Status.updated()
+    if super_admin_check(current_user.id):
+        return jsonify(Admin.objects().all())
     else:
         return Status.does_not_have_access()
 
 
-@app.route('/api/v1/admin/delete/<admin_id>', methods=["DELETE"])
-def delete_admin(admin_id):
-    headers = request.headers
+@app.route('/api/v1/admins/<user_id>', methods=["PUT"])
+@jwt_required()
+def update_admin(user_id):
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    
+    if does_admin_exist(user_id) is None:
+        return Status.not_found()
+    
+    data = request.get_json()
+    
+    if (super_admin_check(current_user.id)):
+        admin = Admin.objects.get(user_id=user_id)
+        if (data["access"] == "admin" or data["access"] == "super_admin"):
+            setattr(admin, "access", data["access"])
+            admin.save()
+            return Status.updated()
+        else:
+            return Status.bad_request()
+    else:
+        return Status.does_not_have_access()
 
-    if does_admin_exist(admin_id) is None:
+
+@app.route('/api/v1/admins/<user_id>', methods=["DELETE"])
+@jwt_required()
+def delete_admin(user_id):
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+
+    if does_admin_exist(user_id) is None:
         return Status.not_found()
 
-    if super_admin_check(headers["sender_id"]):
-        admin = Admin.objects.get(user_id=admin_id)
+    if super_admin_check(current_user.id):
+        admin = Admin.objects.get(user_id=user_id)
         admin.delete()
         return Status.deleted()
-    
     else:
         return Status.does_not_have_access()

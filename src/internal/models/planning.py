@@ -1,5 +1,4 @@
 from mongoengine import Document, ReferenceField
-
 from src.internal.models.beverage import Beverage
 from src.internal.models.user import User
 

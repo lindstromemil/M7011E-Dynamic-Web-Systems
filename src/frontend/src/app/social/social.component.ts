@@ -58,7 +58,6 @@ export class SocialComponent implements OnInit {
   }
 
   navigateToProfilePage(name: string) {
-    console.log(name);
     this.router.navigate(['user/'+name]);
   }
 }

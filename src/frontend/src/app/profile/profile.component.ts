@@ -52,7 +52,7 @@ export class ProfileComponent implements OnInit{
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['entry']);
+    this.router.navigate(['beverage/'+name]);
   }
 
 }

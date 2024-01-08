@@ -77,7 +77,6 @@ export class ReviewsComponent implements OnInit {
             this.reviews[i].likes += 1;
           }
         }
-        console.log("Liked post");
       },
       err => {
         console.error(err.error)
@@ -87,7 +86,7 @@ export class ReviewsComponent implements OnInit {
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['entry']);
+    this.router.navigate(['beverage/'+name]);
   }
 
 }

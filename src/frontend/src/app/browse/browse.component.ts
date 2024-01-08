@@ -47,9 +47,6 @@ export class BrowseComponent implements OnInit {
     if (!search) {
       search = "";
     }
-    console.log("load more content");
-    console.log(page);
-    console.log(search);
     this.loading = true;
     this.beverageAPI.get_all_beverages(page, search).subscribe(
         (beverages: Beverage[]) => {
@@ -88,6 +85,6 @@ export class BrowseComponent implements OnInit {
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['entry']);
+    this.router.navigate(['beverage/'+name]);
   }
 }

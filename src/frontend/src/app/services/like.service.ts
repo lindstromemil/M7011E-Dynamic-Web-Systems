@@ -19,6 +19,10 @@ export class LikeService {
 
     }
 
+    get_like(rating_id: string, user_id: string): Observable<Like> {
+      return this.http.get<Like>(environment.baseUrl+"/likes/"+rating_id+":"+user_id);
+    }
+
     create_like(rating_id: string): Observable<string> {
       const header: {Authorization: string} = { 'Authorization': `Bearer ${this.cookieService.get('token')}` }
       const body = {
@@ -26,5 +30,11 @@ export class LikeService {
       }
 
       return this.http.post<string>(environment.baseUrl+"/likes", body,{ headers: header });
+    }
+
+    delete_like(rating_id: string): Observable<string> {
+      const header: {Authorization: string} = { 'Authorization': `Bearer ${this.cookieService.get('token')}` }
+
+      return this.http.delete<string>(environment.baseUrl+"/likes/"+rating_id, { headers: header });
     }
   }

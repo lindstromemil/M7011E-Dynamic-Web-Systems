@@ -18,6 +18,7 @@ import {FollowService} from "../services/follow.service";
 })
 export class ActivityComponent implements OnInit {
   reviews: Review[] = [];
+  user: User | null = null;
 
 
   constructor(
@@ -35,6 +36,7 @@ export class ActivityComponent implements OnInit {
   ngOnInit(): void {
     this.userAPI.get_me().subscribe(
       (user: User) => {
+        this.user = user;
         this.followAPI.get_all_follows(user._id.$oid.toString()).subscribe(
           (follows: User[]) => {
             for (let y = 0; y < follows.length; y++) {
@@ -102,11 +104,11 @@ export class ActivityComponent implements OnInit {
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['beverage/'+name]);
+    this.router.navigate(['beverage/' + name]);
   }
 
   navigateToProfilePage(name: string) {
-    this.router.navigate(['user/'+name]);
+    this.router.navigate(['user/' + name]);
   }
 
   likeReview(rating_id: string) {
@@ -118,8 +120,26 @@ export class ActivityComponent implements OnInit {
           }
         }
       },
-      err => {
-        console.error(err.error)
+      () => {
+        this.likeAPI.get_like(rating_id, this.user?._id.$oid.toString()).subscribe(
+          (like: Like) => {
+            this.likeAPI.delete_like(like._id.$oid.toString()).subscribe(
+              () => {
+                for (let i = 0; i < this.reviews.length; i++) {
+                  if (this.reviews[i].ratingId === rating_id) {
+                    this.reviews[i].likes -= 1;
+                  }
+                }
+              },
+              err => {
+                console.error(err.error)
+              }
+            )
+          },
+          err => {
+            console.error(err.error)
+          }
+        )
       }
     )
   }

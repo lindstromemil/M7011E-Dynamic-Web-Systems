@@ -7,6 +7,7 @@ import {Beverage} from "../models/beverage.model";
 import {RatingsService} from "../services/ratings.service";
 import {Like} from "../models/like.model";
 import {LikeService} from "../services/like.service";
+import {User} from "../models/user.model";
 
 @Component({
   selector: 'app-reviews',
@@ -16,6 +17,7 @@ import {LikeService} from "../services/like.service";
 export class ReviewsComponent implements OnInit {
 
   reviews: Review[] = [];
+  user: User | null = null;
 
   constructor(
     private router: Router,
@@ -30,6 +32,14 @@ export class ReviewsComponent implements OnInit {
 
   ngOnInit() {
     this.load_content();
+    this.userAPI.get_me().subscribe(
+      (user: User) => {
+        this.user = user;
+      },
+      err => {
+        console.error(err.error)
+      }
+    )
   }
 
   load_content() {
@@ -73,21 +83,39 @@ export class ReviewsComponent implements OnInit {
   likeReview(rating_id: string) {
     this.likeAPI.create_like(rating_id).subscribe(
       () => {
-        for(let i = 0; i < this.reviews.length; i++) {
+        for (let i = 0; i < this.reviews.length; i++) {
           if (this.reviews[i].ratingId === rating_id) {
             this.reviews[i].likes += 1;
           }
         }
       },
-      err => {
-        console.error(err.error)
+      () => {
+        this.likeAPI.get_like(rating_id, this.user?._id.$oid.toString()).subscribe(
+          (like: Like) => {
+            this.likeAPI.delete_like(like._id.$oid.toString()).subscribe(
+              () => {
+                for (let i = 0; i < this.reviews.length; i++) {
+                  if (this.reviews[i].ratingId === rating_id) {
+                    this.reviews[i].likes -= 1;
+                  }
+                }
+              },
+              err => {
+                console.error(err.error)
+              }
+            )
+          },
+          err => {
+            console.error(err.error)
+          }
+        )
       }
     )
   }
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['beverage/'+name]);
+    this.router.navigate(['beverage/' + name]);
   }
 
 }

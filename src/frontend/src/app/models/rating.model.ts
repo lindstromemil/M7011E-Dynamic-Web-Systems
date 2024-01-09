@@ -16,6 +16,7 @@ export interface Activity {
 }
 
 export interface Review {
+  "username": string,
   "ratingId": string,
   "beverage": Beverage,
   "score": number,

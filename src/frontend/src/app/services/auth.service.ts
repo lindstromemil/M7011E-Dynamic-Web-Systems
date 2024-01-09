@@ -20,7 +20,7 @@ export class AuthService implements OnInit {
 
     ngOnInit(): void {
       let username = this.cookieService.get('token');
-      if (!username) {
+      if (!username || username === "") {
         this.router.navigate(['login']);
       } else {
         this.userService.get_me().subscribe(

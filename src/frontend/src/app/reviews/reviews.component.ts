@@ -42,6 +42,7 @@ export class ReviewsComponent implements OnInit {
                 this.ratingAPI.get_all_rating_likes(rating[i]._id.$oid.toString()).subscribe(
                   (likes: Like[]) => {
                     let review: Review = {
+                      username: this.name,
                       ratingId: rating[i]._id.$oid.toString(),
                       beverage: beverage,
                       score: rating[i].score,

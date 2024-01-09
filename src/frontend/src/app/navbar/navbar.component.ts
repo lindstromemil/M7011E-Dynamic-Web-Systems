@@ -23,6 +23,10 @@ export class NavbarComponent {
 
   logout(): void {
     this.cookieService.set('token', "");
+    this.cookieService.set('token', "");
+    this.cookieService.set('token', "");
+    this.cookieService.set('token', "");
+
     this.router.navigate(['login']);
   }
 

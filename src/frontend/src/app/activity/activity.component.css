@@ -1,8 +1,84 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 75px;
+  background-color: #f4f4f4;
 }
+
+h2 {
+  text-align: center;
+}
+
+.beverage-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.beverage-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.beverage-info {
+  float: left;
+  flex: 1;
+  padding-left: 100px;
+}
+
+.score-info {
+  float: right;
+  font-weight: bold;
+}
+
+.profile-container {
+  padding-right: 40px;
+}
+
+.profile-name {
+  background-color: #4b4b4b;
+  color: #FFF;
+  font-size: 20px;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.beverage-image {
+  max-width: 150px;
+  max-height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid #ccc;
+}
+
+.beverage-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.review-comment {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.image_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.image_wrapper:hover {
+  transform: scale(1.05);
+}
+
+.timestamp {
+  color: #777;
+  font-size: 14px;
+}
+

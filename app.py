@@ -11,7 +11,7 @@ def _run():
     """ Imports the app and runs it. """
     print(routes)
     importDB.insert_db_from_csv()  # Import the database from CSV
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
 
 
 if __name__ == "__main__":

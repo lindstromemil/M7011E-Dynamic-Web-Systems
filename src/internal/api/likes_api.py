@@ -42,6 +42,12 @@ def create_like():
     # 409 Conflict
     return Status.already_exists()
 
+@app.route('/api/v1/likes/<rating_id>:<user_id>', methods=["GET"])
+def get_like_by_rating(rating_id, user_id):
+    like = Like.objects.get(rating_id=rating_id, user_id= user_id)
+    if like is None:
+        return Status.not_found()
+    return jsonify(like)
 
 @app.route('/api/v1/likes/<id>', methods=["DELETE"])
 @jwt_required()

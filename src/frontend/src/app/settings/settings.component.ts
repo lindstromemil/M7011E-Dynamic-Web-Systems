@@ -25,7 +25,7 @@ export class SettingsComponent {
   deleteProfile() {
     this.userAPI.delete_user(this.authService.username).subscribe(
       () => {
-        this.cookieService.set('token', "");
+        this.cookieService.deleteAll();
         this.router.navigate(['login']);
       },
       err => {

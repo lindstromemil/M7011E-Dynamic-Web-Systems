@@ -22,7 +22,8 @@ export class NavbarComponent {
   @Input({ transform: booleanAttribute }) thirdSelected!: boolean;
 
   logout(): void {
-    this.cookieService.set('token', "");
+    this.cookieService.deleteAll();
+
     this.router.navigate(['login']);
   }
 

@@ -1,16 +1,29 @@
 <app-navbar firstSelected="true" secondSelected="false" thirdSelected="false"></app-navbar>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spirits - Login</title>
-</head>
-    <h1>Welcome {{username}}!</h1>
 <body>
-    
+<h2>Activity</h2>
+<ul class="beverage-list">
+  <div *ngFor="let item of reviews">
+    <li class="beverage-item">
+      <div class="profile-container">
+        <button class="profile-name" (click)="navigateToProfilePage(item.username)">{{item.username}}</button>
+      </div>
+      <div class="image_wrapper" (click)="navigateToBeveragePage(item.beverage.name)">
+        <img src="{{item.beverage.image_path}}" alt="{{item.beverage.name}}" class="beverage-image">
+      </div>
+      <div class="beverage-info">
+        <div class="beverage-name">{{item.beverage.name}}</div>
+        <div class="review-comment">{{item.comment}}</div>
+        <div class="timestamp">{{item.created_at}}</div>
+      </div>
+      <div class="score-info">
+        <div class="review-comment">Score {{item.score}}</div>
+        <div class="review-comment">
+          <button class="nav-button" (click)="likeReview(item.ratingId)"><span class="material-symbols-outlined">thumb_up_alt</span></button>
+          {{item.likes}}
+        </div>
+      </div>
+    </li>
+  </div>
+</ul>
 </body>
-
-</html>

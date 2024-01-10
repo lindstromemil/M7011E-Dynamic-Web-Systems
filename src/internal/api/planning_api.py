@@ -1,7 +1,6 @@
 from bson import ObjectId
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from http import HTTPStatus
 from mongoengine import Q
 from src.internal import app
 from src.internal.models.beverage import Beverage
@@ -17,44 +16,33 @@ def create_planning():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     try:
-        data = request.get_json()
-        if str(data["user_id"]) == current_user.id:
-            # 400 Bad Request
-            return Status.bad_request()
+        data = request.get_json()      
+        
         if check_beverage(str(data["beverage_id"])) is None:
-            # 404 Not Found
-            return Status.not_found()
+            return Status.not_found() #404 Not Found
+        
         if check_beverage_in_planning(str(data["user_id"]), str(data["beverage_id"])) is None:
-            new_planning = Planning(**data)
-            new_planning.save()
-            # 200 OK
-            return Status.created()
+            if current_user.id == str(data["user_id"]) or admin_check(current_user.id):
+                new_planning = Planning(**data)
+                new_planning.save()
+                return Status.created() #201 Created
+            else:
+                return Status.does_not_have_access() #403 Forbidden
         else:
-            # 409 Already Exists
-            return Status.already_exists()
-    except Exception as e:
-        # 500 Internal Server Error
-        return Status.error()
-
-
-def check_user(user_id):
-    try:
-        existing_user = Planning.objects.get(user_id=user_id)
-        return existing_user
-    except Exception as e:
-        return None
+            return Status.already_exists() #409 Conflict
+    except Exception:
+        return Status.error() #500 Internal Server Error
 
 
 def check_beverage(beverage_id):
     try:
         existing_beverage = Beverage.objects.get(id=beverage_id)
         return existing_beverage
-    except Exception as e:
-        return None
+    except Beverage.DoesNotExist:
+        return Status.not_found() #404 Not Found
 
 
 def check_beverage_in_planning(user_id, beverage_id):
@@ -62,7 +50,7 @@ def check_beverage_in_planning(user_id, beverage_id):
         existing_beverage_in_planning = Planning.objects.get(user_id=user_id, beverage_id=beverage_id)
         return existing_beverage_in_planning
     except Planning.DoesNotExist:
-        return None
+        return Status.not_found() #404 Not Found
 
 
 @app.route('/api/v1/planning/<id>', methods=["GET"])
@@ -70,29 +58,24 @@ def get_planning(id):
     try:
         planning = Planning.objects.get(user_id=str(id))
         planning_data = [item.to_mongo().to_dict() for item in planning]
-        return jsonify(planning_data), HTTPStatus.OK
+        return jsonify(planning_data) #200 OK
+    
     except Planning.DoesNotExist:
-        return Status.not_found()
-    except Exception as e:
-        return Status.error()
+        return Status.not_found() #404 Not Found
+    except Exception:
+        return Status.error() #500 Internal Server Error
     
 
 @app.route('/api/v1/planning', methods=["GET"])
 def get_all_plannings():
     try:
-        query = request.args.get("q", type=str, default="")
-        try:
-            query = ObjectId(query)
-            results = Planning.objects(Q(user_id__icontains=query)|Q(beverage_id__icontains=query)|Q(id__icontains=query))
-            planningList = [planning.to_mongo().to_dict() for planning in results]
-            # 200 OK
-            return jsonify(planningList), HTTPStatus.OK
-        except Exception:
-            # 400 Bad Request
-            return Status.bad_request()
-
-    except Exception as e:
-        return Status.error()
+        query = ObjectId(request.args.get("q", type=str, default=""))
+        results = Planning.objects(Q(user_id__icontains=query)|Q(beverage_id__icontains=query)|Q(id__icontains=query))
+        planningList = [planning.to_mongo().to_dict() for planning in results]
+        return jsonify(planningList) #200 OK
+    
+    except Exception:
+        return Status.bad_request() #400 Bad Request
 
 
 @app.route('/api/v1/planning/<id>', methods=["PUT"])
@@ -102,28 +85,26 @@ def update_planning(id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
+    
     try:
         data = request.get_json()
-        try:
-            objectId = ObjectId(id)
-            planning = Planning.objects.get(id=objectId)
-            user_id_object = planning.user_id
-            user_id = str(user_id_object.id)
-        except Exception:
-            # 404 Not Found
-            return Status.error()
-        if user_id == data["user_id"]:
-            Planning.objects(id=objectId).update(set__beverage_id=ObjectId(data["beverage_id"]))
-            # 200 OK
-            return Status.updated()
+
+        objectId = ObjectId(id)
+        planning = Planning.objects.get(id=objectId)
+        
+        if planning.user_id.id == current_user.id or admin_check(current_user.id):
+            planning.update(set__beverage_id=ObjectId(data["beverage_id"]))
+            return Status.updated() #200 OK
         else:
-            # 403
-            return Status.Unauthorized
+            return Status.does_not_have_access() #403 Forbidden
+        
+    except Planning.DoesNotExist:
+        return Status.not_found() #404 Not Found
     except Exception:
-        # 500 Internal server error
-        return Status.error()
+        return Status.error() #500 Internal Server Error
+        
+        
 
 
 @app.route('/api/v1/planning/<id>', methods=["DELETE"])
@@ -133,17 +114,16 @@ def delete_planning(id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
+    
     try:
-        try:
-            Planning.objects.get(id=str(id))
-        except Exception:
-            # 404 Not Found
-            return Status.error()
-        Planning.objects(id=str(id)).delete()
-        # 200 OK
-        return Status.deleted()
-    except Exception:
-        # 500 Internal server error
-        return Status.error()
+        plan = Planning.objects.get(id=str(id))
+
+        if plan.user_id.id == current_user.id or admin_check(current_user.id):
+            plan.delete()
+            return Status.deleted() #200 OK
+        else:
+            return Status.does_not_have_access() #403 Forbidden
+        
+    except Planning.DoesNotExist:
+        return Status.not_found() #404 Not Found

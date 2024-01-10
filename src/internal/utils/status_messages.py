@@ -47,6 +47,10 @@ class Status:
     def already_exists():
         return make_response(jsonify({"message": "Object / Connection already exists"}), HTTPStatus.CONFLICT)
 
+    # 422
+    def brand_does_not_exist():
+        return make_response(jsonify({"message": "Brand Does Not Exist, Please Enter Brand First"}), HTTPStatus.UNPROCESSABLE_ENTITY)
+
     # 500
     def error():
         return make_response(

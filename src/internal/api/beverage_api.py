@@ -1,7 +1,6 @@
 from bson import ObjectId
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from http import HTTPStatus
 from mongoengine import Q
 from src.internal import app
 from src.internal.models.beverage import Beverage
@@ -14,38 +13,30 @@ from src.internal.utils.status_messages import Status
 @app.route("/api/v1/beverages", methods=["POST"])
 @jwt_required()
 def create_beverage():
-    """
-    This API creates a new beverage
-
-    Returns:
-    """
     try:
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     if admin_check(user_id=current_user.id):
         data = request.get_json()
         try:
             data["brand_id"] = Brand.objects.get(name=data["brand_id"])
         except Brand.DoesNotExist:
-            return jsonify({"message": "Brand Does Not Exist, Please Enter Brand First"}), 422
+            return Status.brand_does_not_exist() #422 Unprocessable Entity
         try:
             beverage = Beverage.objects.get(name=data["name"])
             if beverage:
-                # 409 Conflict
-                return Status.name_already_in_use()
+                return Status.name_already_in_use() #409 Conflict
         except Beverage.DoesNotExist:
             pass
+
         beverage = Beverage(**data)
         beverage.save()
-        # 201 Created
-        return Status.created()
+        return Status.created() #201 Created
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route("/api/v1/beverages", methods=["GET"])
@@ -64,8 +55,7 @@ def get_beverage():
         )
     results = results.limit(size).skip((page - 1) * size)
     brandsList = [beverage.to_mongo().to_dict() for beverage in results]
-    # 200 OK
-    return jsonify(brandsList), HTTPStatus.OK
+    return jsonify(brandsList) #200 OK
 
 
 @app.route("/api/v1/beverages/<name>", methods=["GET"])
@@ -78,15 +68,11 @@ def get_all_beverages(name):
             beverage = Beverage.objects(
                 Q(name__icontains=name) | Q(country__icontains=name) | Q(beverageType__icontains=name)
             ).first()
-        # 200 OK
-        return jsonify(beverage), HTTPStatus.OK
+        return jsonify(beverage) #200 OK
     except Beverage.DoesNotExist:
-        # 404 Not found
-        return Status.not_found()
-    except Exception as e:
-        print(e)
-        # 500 Internal server error
-        return Status.error()
+        return Status.not_found() #404 Not found
+    except Exception:
+        return Status.error() #500 Internal server error
 
 
 @app.route("/api/v1/beverages/<name>", methods=["PATCH"])
@@ -96,8 +82,7 @@ def update_beverage(name):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     if admin_check(user_id=current_user.id):
         try:
@@ -111,34 +96,26 @@ def update_beverage(name):
                 if key in beverage:
                     setattr(beverage, key, value)
             beverage.save()
-            # 200 OK
-            return Status.updated()
+            return Status.updated()  #200 OK
+        
         except Beverage.DoesNotExist:
-            # 404 Not found
-            return Status.not_found()
+            return Status.not_found() #404 Not Found
         except Exception:
-            # 500 Internal server error
-            return Status.error()
+            return Status.error() #500 Internal Server Error
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route("/api/v1/beverages/<name>", methods=["DELETE"])
 @jwt_required()
 def delete_beverages(name):
-    """
-    Deletes brand based on name or id
-    :param name:
-    :return:
-    """
     try:
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
-    if admin_check(user_id=current_user.id):
+        return Status.not_logged_in() #401 Unauthorized
+    
+    if admin_check(current_user.id):
         try:
             try:
                 objectId = ObjectId(name)
@@ -146,14 +123,11 @@ def delete_beverages(name):
             except Exception:
                 beverage = Beverage.objects.get(name=name)
             beverage.delete()
-            # 200 OK
-            return Status.deleted()
+            return Status.deleted() #200 OK
+        
         except Beverage.DoesNotExist:
-            # 404 Not found
-            return Status.not_found()
+            return Status.not_found() #404 Not Found
         except Exception:
-            # 500 Internal server error
-            return Status.error()
+            return Status.error() #500 Internal Server Error
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden

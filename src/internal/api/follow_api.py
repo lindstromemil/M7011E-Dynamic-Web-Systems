@@ -1,7 +1,6 @@
 from bson import ObjectId
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from http import HTTPStatus
 from mongoengine import Q
 from src.internal import app
 from src.internal.models.follow import Followers, Follows
@@ -17,19 +16,16 @@ def create_follow():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     data = request.get_json()
     try:
         target_user = User.objects.get(username=data["target_username"])
     except User.DoesNotExist:
-        # 404 Not Found
-        return Status.not_found()
+        return Status.not_found() #404 Not Found
 
     if target_user.id == current_user.id:
-        # 400 Bad Request
-        return Status.bad_request()
+        return Status.bad_request() #400 Bad Request
 
     try:
         Follows.objects.get(user_id=current_user.id, followed_id=target_user.id)
@@ -39,20 +35,12 @@ def create_follow():
         followBy = Followers(user_id=target_user, follower_id=current_user)
         follow.save()
         followBy.save()
-        # 201 OK
-        return Status.created()
-    # 409 Conflict
-    return Status.already_exists()
+        return Status.created() #201 Created
+    return Status.already_exists() #409 Conflict
 
 
 @app.route("/api/v1/follows", methods=["GET"])
 def get_follows():
-    """
-    Gets all users the given user is following
-
-    :param id: user_id
-    :return users[]:
-    """
     query = request.args.get("q", type=str, default="")
     size = request.args.get("size", type=int, default=0)
     page = request.args.get("page", type=int, default=1)
@@ -60,32 +48,21 @@ def get_follows():
         page = 1
 
     if query == "":
-        # 400 Bad Request
-        # Should not be empty
-        return Status.bad_request()
+        return Status.bad_request() #400 Bad Request, Should not be empty
 
     try:
         objectId = ObjectId(query)
         results = Follows.objects(Q(user_id=objectId))
     except Exception:
-        # 401, if objectId is invalid
-        return Status.bad_request()
+        return Status.bad_request() #¤00 Bad Request
 
     results = results.limit(size).skip((page - 1) * size)
-
     usersList = [follow.followed_id.to_mongo().to_dict() for follow in results]
-    # 200 OK
-    return jsonify(usersList), HTTPStatus.OK
+    return jsonify(usersList) #200 OK
 
 
 @app.route("/api/v1/followers", methods=["GET"])
 def get_followers():
-    """
-    Gets all users the given user is following
-
-    :param id: user_id
-    :return users[]:
-    """
     query = request.args.get("q", type=str, default="")
     size = request.args.get("size", type=int, default=0)
     page = request.args.get("page", type=int, default=1)
@@ -93,22 +70,17 @@ def get_followers():
         page = 1
 
     if query == "":
-        # 400 Bad Request
-        # Should not be empty
-        return Status.bad_request()
+        return Status.bad_request() #400 Bad Request, Should not be empty
 
     try:
         objectId = ObjectId(query)
         results = Followers.objects(Q(user_id=objectId))
     except Exception:
-        # 401, if objectId is invalid
-        return Status.bad_request()
+        return Status.bad_request() #400 Bad Request
 
     results = results.limit(size).skip((page - 1) * size)
-
     usersList = [follow.follower_id.to_mongo().to_dict() for follow in results]
-    # 200 OK
-    return jsonify(usersList), HTTPStatus.OK
+    return jsonify(usersList) #200 OK
 
 
 @app.route("/api/v1/follows/<name>", methods=["DELETE"])
@@ -118,8 +90,7 @@ def delete_follow(name):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     try:
         try:
@@ -133,11 +104,8 @@ def delete_follow(name):
 
         follow.delete()
         follower.delete()
-        # 200 OK
-        return Status.deleted()
+        return Status.deleted() #200 OK
     except Follows.DoesNotExist:
-        # 404 Not found
-        return Status.not_found()
+        return Status.not_found() #404 Not found
     except Exception:
-        # 500 Internal server error
-        return Status.error()
+        return Status.error() #500 Internal server error

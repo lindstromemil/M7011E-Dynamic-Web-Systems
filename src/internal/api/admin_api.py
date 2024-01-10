@@ -14,25 +14,24 @@ def create_admin():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     data = request.get_json()
 
     if admin_check(data["user_id"]):
-        return Status.already_a_admin()
+        return Status.already_a_admin() #409 Conflict
 
     if (data["access"] == "admin") and admin_check(current_user.id):
         admin = Admin(user_id=data["user_id"], access=data["access"])
         admin.save()
-        return Status.created()
+        return Status.created() #201 Created
 
     if (data["access"] == "super_admin") and super_admin_check(current_user.id):
         admin = Admin(user_id=data["user_id"], access=data["access"])
         admin.save()
-        return Status.created()
+        return Status.created() #201 Created
     
-    return Status.does_not_have_access()
+    return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route('/api/v1/admins/me', methods=["POST"])
@@ -43,14 +42,13 @@ def super_admin_me():
             current_user = get_jwt_identity()
             current_user = User.objects.get(username=current_user)
         except User.DoesNotExist:
-            # 401 Unauthorized
-            return Status.not_logged_in()
+            return Status.not_logged_in() #401 Unauthorized
 
         super = Admin(user_id=current_user.id, access="super_admin")
         super.save()
-        return Status.created()
+        return Status.created() #201 Created
     else:
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route('/api/v1/admins', methods=["GET"])
@@ -60,13 +58,12 @@ def get_all_admin():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     if super_admin_check(current_user.id):
-        return jsonify(Admin.objects().all())
+        return jsonify(Admin.objects().all()) #200 OK
     else:
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route('/api/v1/admins/<user_id>', methods=["PUT"])
@@ -76,11 +73,10 @@ def update_admin(user_id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
     
     if does_admin_exist(user_id) is None:
-        return Status.not_found()
+        return Status.not_found() #404 Not Found
     
     data = request.get_json()
     
@@ -89,11 +85,11 @@ def update_admin(user_id):
         if (data["access"] == "admin" or data["access"] == "super_admin"):
             setattr(admin, "access", data["access"])
             admin.save()
-            return Status.updated()
+            return Status.updated() #200 OK
         else:
-            return Status.bad_request()
+            return Status.bad_request() #400 Bad Request
     else:
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route('/api/v1/admins/<user_id>', methods=["DELETE"])
@@ -103,15 +99,14 @@ def delete_admin(user_id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
     if does_admin_exist(user_id) is None:
-        return Status.not_found()
+        return Status.not_found() #404 Not Found
 
     if super_admin_check(current_user.id):
         admin = Admin.objects.get(user_id=user_id)
         admin.delete()
-        return Status.deleted()
+        return Status.deleted() #200 OK
     else:
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden

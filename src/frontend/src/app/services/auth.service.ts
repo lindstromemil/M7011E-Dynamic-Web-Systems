@@ -29,7 +29,7 @@ export class AuthService implements OnInit {
             this.username = user.username;
           },
           err => {
-            this.cookieService.set('token', "");
+            this.cookieService.deleteAll();
             this.router.navigate(['login']);
           }
         )

@@ -1,42 +1,64 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Beverage} from 'src/app/models/beverage.model';
-import {environment} from 'src/environments/environment';
-import {CookieService} from "ngx-cookie-service";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Beverage } from 'src/app/models/beverage.model';
+import { environment } from 'src/environments/environment';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BeverageService {
+  constructor(private http: HttpClient, private cookieService: CookieService) {}
 
-  constructor(
-    private http: HttpClient,
-    private cookieService: CookieService
-  ) {
-
-  }
-
-  create_beverage(name: string, description: string, image: string, bitt: number, full: number, sweet: number, abv: number, bevType: string, country: string, brand_id: string): Observable<string> {
-    const header: { Authorization: string } = {'Authorization': `Bearer ${this.cookieService.get('token')}`}
-    const body = {
-      'name': `${name}`,
-      'description': `${description}`,
-      'image_path': `${image}`,
-      'bitterness': `${bitt}`,
-      'fullness': `${full}`,
-      'sweetness': `${sweet}`,
-      'abv': `${abv}`,
-      'beverageType': `${bevType}`,
-      'country': `${country}`,
-      'brand_id': `${brand_id}`,
+  create_beverage(
+    name: string,
+    description: string,
+    image: string,
+    bitt: number,
+    full: number,
+    sweet: number,
+    abv: number,
+    bevType: string,
+    country: string,
+    brand_id: string
+  ): Observable<string> {
+    const header: { Authorization: string } = {
+      Authorization: `Bearer ${this.cookieService.get('token')}`,
     };
-    return this.http.post<string>(environment.baseUrl + "/beverages", body, {headers: header});
+    const body = {
+      name: `${name}`,
+      description: `${description}`,
+      image_path: `${image}`,
+      bitterness: `${bitt}`,
+      fullness: `${full}`,
+      sweetness: `${sweet}`,
+      abv: `${abv}`,
+      beverageType: `${bevType}`,
+      country: `${country}`,
+      brand_id: `${brand_id}`,
+    };
+    return this.http.post<string>(environment.baseUrl + '/beverages', body, {
+      headers: header,
+    });
   }
 
-  update_beverage(name: string, description: string, image: string, bitt: number, full: number, sweet: number, abv: number, bevType: string, country: string, brand_id: string): Observable<string> {
-    const header: { Authorization: string } = {'Authorization': `Bearer ${this.cookieService.get('token')}`}
-    let body:any = {};
+  update_beverage(
+    name: string,
+    description: string,
+    image: string,
+    bitt: number,
+    full: number,
+    sweet: number,
+    abv: number,
+    bevType: string,
+    country: string,
+    brand_id: string
+  ): Observable<string> {
+    const header: { Authorization: string } = {
+      Authorization: `Bearer ${this.cookieService.get('token')}`,
+    };
+    let body: any = {};
     if (name) {
       body.name = name;
     }
@@ -68,21 +90,42 @@ export class BeverageService {
       body.brand_id = brand_id;
     }
     if (body.length === 0) {
-      throw new Error("Cannot update with no changed values");
+      throw new Error('Cannot update with no changed values');
     }
-    return this.http.patch<string>(environment.baseUrl + "/beverages/" + name, body, {headers: header});
+    return this.http.patch<string>(
+      environment.baseUrl + '/beverages/' + name,
+      body,
+      { headers: header }
+    );
   }
 
   delete_beverage(name: string): Observable<string> {
-    const header: { Authorization: string } = {'Authorization': `Bearer ${this.cookieService.get('token')}`}
-    return this.http.delete<string>(environment.baseUrl + "/beverages/"+name, {headers: header});
+    const header: { Authorization: string } = {
+      Authorization: `Bearer ${this.cookieService.get('token')}`,
+    };
+    return this.http.delete<string>(
+      environment.baseUrl + '/beverages/' + name,
+      { headers: header }
+    );
   }
 
-  get_all_beverages(page: number, search: string): Observable<Beverage[]> {
-    return this.http.get<Beverage[]>(environment.baseUrl + "/beverages?size=15&page=" + page + "&q=" + search);
+  get_all_beverages(
+    page: number,
+    size: number,
+    search: string
+  ): Observable<Beverage[]> {
+    return this.http.get<Beverage[]>(
+      environment.baseUrl +
+        '/beverages?size=' +
+        size +
+        '&page=' +
+        page +
+        '&q=' +
+        search
+    );
   }
 
   get_beverage(id: string): Observable<Beverage> {
-    return this.http.get<Beverage>(environment.baseUrl + "/beverages/" + id);
+    return this.http.get<Beverage>(environment.baseUrl + '/beverages/' + id);
   }
 }

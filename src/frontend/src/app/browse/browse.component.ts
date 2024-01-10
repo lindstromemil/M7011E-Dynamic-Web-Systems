@@ -1,9 +1,10 @@
-import {Component, HostListener, OnInit} from '@angular/core';
-import {Router} from "@angular/router";
-import {BeverageService} from "../services/beverage.service";
-import {Beverage} from "../models/beverage.model";
-import {FormControl} from "@angular/forms";
-import {debounceTime} from "rxjs";
+import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { BeverageService } from '../services/beverage.service';
+import { Beverage } from '../models/beverage.model';
+import { FormControl } from '@angular/forms';
+import { debounceTime } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-browse',
@@ -19,25 +20,29 @@ export class BrowseComponent implements OnInit {
   constructor(
     private router: Router,
     private beverageAPI: BeverageService,
-  ) {
-  }
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    this.load_more_content(1, "");
-    this.searchInput.valueChanges
-    .pipe(
-      debounceTime(300)
-      )
-      .subscribe(() => {
-        this.load_search(this.searchInput.value);
-      });
+    this.route.params.subscribe((params) => {
+      if (params['search']) {
+        this.searchInput.setValue(params['search']);
+      }
+      this.load_more_content(1, this.searchInput.value);
+    });
+    this.searchInput.valueChanges.pipe(debounceTime(300)).subscribe(() => {
+      this.load_search(this.searchInput.value);
+    });
   }
 
   @HostListener('window:scroll', ['$event'])
   onScroll(event: Event): void {
-
-  // Check if the user has reached the exact bottom of the page
-  if (document.documentElement.clientHeight + window.scrollY >=(document.documentElement.scrollHeight || document.documentElement.clientHeight)) {
+    // Check if the user has reached the exact bottom of the page
+    if (
+      document.documentElement.clientHeight + window.scrollY >=
+      (document.documentElement.scrollHeight ||
+        document.documentElement.clientHeight)
+    ) {
       this.currentPage++;
       this.load_more_content(this.currentPage, this.searchInput.value);
     }
@@ -45,32 +50,31 @@ export class BrowseComponent implements OnInit {
 
   load_more_content(page: number, search: string) {
     if (!search) {
-      search = "";
+      search = '';
     }
     this.loading = true;
-    this.beverageAPI.get_all_beverages(page, search).subscribe(
-        (beverages: Beverage[]) => {
-
-          this.beverages = [...this.beverages, ...beverages];
-        },
-        err => {
-          console.error(err.error)
-        }
-      )
+    this.beverageAPI.get_all_beverages(page, 15, search).subscribe(
+      (beverages: Beverage[]) => {
+        this.beverages = [...this.beverages, ...beverages];
+      },
+      (err) => {
+        console.error(err.error);
+      }
+    );
     this.loading = false;
   }
 
-  load_search(searchQuery : string) {
+  load_search(searchQuery: string) {
     this.loading = true;
     this.currentPage = 1;
-    this.beverageAPI.get_all_beverages(1, searchQuery).subscribe(
-        (beverages: Beverage[]) => {
-          this.beverages = beverages;
-        },
-        err => {
-          console.error(err.error)
-        }
-      )
+    this.beverageAPI.get_all_beverages(1, 15, searchQuery).subscribe(
+      (beverages: Beverage[]) => {
+        this.beverages = beverages;
+      },
+      (err) => {
+        console.error(err.error);
+      }
+    );
     this.loading = false;
   }
 
@@ -85,6 +89,6 @@ export class BrowseComponent implements OnInit {
 
   navigateToBeveragePage(name: string) {
     console.log(name);
-    this.router.navigate(['beverage/'+name]);
+    this.router.navigate(['beverage/' + name]);
   }
 }

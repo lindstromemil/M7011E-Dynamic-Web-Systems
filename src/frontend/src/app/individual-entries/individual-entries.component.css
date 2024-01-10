@@ -1,0 +1,248 @@
+.header-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  background-color: var(--content-background);
+  margin-bottom: 30px;
+}
+
+.header {
+  display: flex;
+  max-width: 1000px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.header-left-wrapper {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+.header-right-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: var(--content-background);
+  width: 30%;
+  margin-top: 50px;
+}
+
+.beverage-image-wrapper {
+  margin-right: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.beverage-image-wrapper img {
+  object-fit: contain;
+  max-width: 250px;
+  max-height: 300px;
+}
+
+.beverage-image-wrapper button {
+  min-width: 175px;
+  margin-top: 20px;
+}
+
+.beverage-summary-wrapper {
+  text-align: left;
+  margin-top: 50px;
+  margin-right: 50px;
+  max-width: 400px;
+}
+
+.details {
+  background-color: var(--content-background);
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  text-align: left;
+  min-width: 100px;
+}
+
+.details-set {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.details-key {
+  padding: 0px;
+  margin: 0px;
+}
+
+.details-key p {
+  font-weight: 500;
+  margin: 0px;
+}
+
+.details-value {
+  padding: 0px;
+  margin: 0px;
+}
+
+.details-value p {
+  margin: 0px;
+  margin-bottom: 10px;
+}
+
+.details-value a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.details-value a:hover {
+  color: var(--primary);
+}
+
+.taste-container {
+  background-color: var(--content-background);
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+}
+
+.taste {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content-wrapper {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.recommendations-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  margin-top: 10px;
+}
+
+.recommendations-wrapper h3 {
+  margin: 0px;
+  font-weight: 500;
+}
+
+.recommendations-title {
+  margin: 0px;
+  margin-bottom: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.recommendations-title a {
+  margin: 0px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.recommendations-title a:hover {
+  color: var(--primary);
+}
+
+.recommendations-title h3 {
+  margin: 0px;
+  font-weight: 500;
+}
+
+.recommendations-list {
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.recommendations-list a {
+  text-decoration: none;
+  color: var(--text);
+}
+
+.recommendations-list a:hover {
+  color: var(--primary);
+}
+
+.recommendations-card {
+  background-color: var(--content-background);
+  width: 160px;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  border-radius: 7px;
+  flex-direction: column;
+
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.recommendations-card img {
+  max-width: 60px;
+  max-height: 125px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.recommendations-card p {
+  margin: 0px;
+  margin-bottom: 10px;
+}
+
+.recommendations-card h4 {
+  margin: 0px;
+  margin-bottom: 10px;
+}
+
+.quarter-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 1em auto;
+  border: 2px solid rgba(15, 15, 15, 0.85);
+}
+
+.popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  z-index: 1000; /* Ensure a higher z-index to overlay other content */
+  width: 450px;
+}
+
+.popup-container-fields {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.popup-container-buttons {
+  min-width: 200px;
+  display: flex;
+  justify-content: space-between;
+  margin-right: 40px;
+  margin-left: 40px;
+  margin-top: 10px;
+}

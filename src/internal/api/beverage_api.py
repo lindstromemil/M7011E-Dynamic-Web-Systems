@@ -6,6 +6,7 @@ from src.internal import app
 from src.internal.models.beverage import Beverage
 from src.internal.models.brand import Brand
 from src.internal.models.user import User
+from src.internal.models.rating import Rating
 from src.internal.utils.access_controller import admin_check
 from src.internal.utils.status_messages import Status
 
@@ -17,26 +18,26 @@ def create_beverage():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
+        return Status.not_logged_in()  # 401 Unauthorized
 
     if admin_check(user_id=current_user.id):
         data = request.get_json()
         try:
             data["brand_id"] = Brand.objects.get(name=data["brand_id"])
         except Brand.DoesNotExist:
-            return Status.brand_does_not_exist() #422 Unprocessable Entity
+            return Status.brand_does_not_exist()  # 422 Unprocessable Entity
         try:
             beverage = Beverage.objects.get(name=data["name"])
             if beverage:
-                return Status.name_already_in_use() #409 Conflict
+                return Status.name_already_in_use()  # 409 Conflict
         except Beverage.DoesNotExist:
             pass
 
         beverage = Beverage(**data)
         beverage.save()
-        return Status.created() #201 Created
+        return Status.created()  # 201 Created
     else:
-        return Status.does_not_have_access() #403 Forbidden
+        return Status.does_not_have_access()  # 403 Forbidden
 
 
 @app.route("/api/v1/beverages", methods=["GET"])
@@ -48,14 +49,14 @@ def get_beverage():
         page = 1
     try:
         objectId = ObjectId(query)
-        results = Beverage.objects(Q(id=objectId))
+        results = Beverage.objects(Q(id=objectId) | Q(brand_id=objectId))
     except Exception:
         results = Beverage.objects(
             Q(name__icontains=query) | Q(country__icontains=query) | Q(beverageType__icontains=query)
         )
     results = results.limit(size).skip((page - 1) * size)
     brandsList = [beverage.to_mongo().to_dict() for beverage in results]
-    return jsonify(brandsList) #200 OK
+    return jsonify(brandsList)  # 200 OK
 
 
 @app.route("/api/v1/beverages/<name>", methods=["GET"])
@@ -68,11 +69,11 @@ def get_all_beverages(name):
             beverage = Beverage.objects(
                 Q(name__icontains=name) | Q(country__icontains=name) | Q(beverageType__icontains=name)
             ).first()
-        return jsonify(beverage) #200 OK
+        return jsonify(beverage)  # 200 OK
     except Beverage.DoesNotExist:
-        return Status.not_found() #404 Not found
+        return Status.not_found()  # 404 Not found
     except Exception:
-        return Status.error() #500 Internal server error
+        return Status.error()  # 500 Internal server error
 
 
 @app.route("/api/v1/beverages/<name>", methods=["PATCH"])
@@ -82,7 +83,7 @@ def update_beverage(name):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
+        return Status.not_logged_in()  # 401 Unauthorized
 
     if admin_check(user_id=current_user.id):
         try:
@@ -96,14 +97,14 @@ def update_beverage(name):
                 if key in beverage:
                     setattr(beverage, key, value)
             beverage.save()
-            return Status.updated()  #200 OK
-        
+            return Status.updated()  # 200 OK
+
         except Beverage.DoesNotExist:
-            return Status.not_found() #404 Not Found
+            return Status.not_found()  # 404 Not Found
         except Exception:
-            return Status.error() #500 Internal Server Error
+            return Status.error()  # 500 Internal Server Error
     else:
-        return Status.does_not_have_access() #403 Forbidden
+        return Status.does_not_have_access()  # 403 Forbidden
 
 
 @app.route("/api/v1/beverages/<name>", methods=["DELETE"])
@@ -113,8 +114,8 @@ def delete_beverages(name):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
-    
+        return Status.not_logged_in()  # 401 Unauthorized
+
     if admin_check(current_user.id):
         try:
             try:
@@ -123,11 +124,16 @@ def delete_beverages(name):
             except Exception:
                 beverage = Beverage.objects.get(name=name)
             beverage.delete()
-            return Status.deleted() #200 OK
-        
+            return Status.deleted()  # 200 OK
+
         except Beverage.DoesNotExist:
-            return Status.not_found() #404 Not Found
+            return Status.not_found()  # 404 Not Found
         except Exception:
-            return Status.error() #500 Internal Server Error
+            return Status.error()  # 500 Internal Server Error
     else:
-        return Status.does_not_have_access() #403 Forbidden
+        return Status.does_not_have_access()  # 403 Forbidden
+
+
+@app.route("/api/v1/beverages/<id>/ratings", methods=["GET"])
+def get_beverage_ratings(id):
+    return jsonify(Rating.objects(beverage_id=id).all())  # 200 OK

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, ExtraOptions } from '@angular/router';
 
 import { LoginComponent } from './login/login.component';
 import { AdminComponent } from './admin/admin.component';
@@ -8,16 +8,21 @@ import { IndividualEntriesComponent } from './individual-entries/individual-entr
 import { BreweryComponent } from './brewery/brewery.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ProfileComponent } from './profile/profile.component';
-import {SettingsComponent} from "./settings/settings.component";
-import {ListComponent} from "./list/list.component";
-import {SocialComponent} from "./social/social.component";
-import {ReviewsComponent} from "./reviews/reviews.component";
+import { SettingsComponent } from './settings/settings.component';
+import { ListComponent } from './list/list.component';
+import { SocialComponent } from './social/social.component';
+import { ReviewsComponent } from './reviews/reviews.component';
+
+const routerOptions: ExtraOptions = {
+  onSameUrlNavigation: 'reload',
+};
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'browse', component: BrowseComponent },
-  { path: 'entry', component: IndividualEntriesComponent },
+  { path: 'browse/:search', component: BrowseComponent },
+  { path: 'beverage/:id', component: IndividualEntriesComponent },
   { path: 'brewery', component: BreweryComponent },
   { path: 'activity', component: ActivityComponent },
   { path: 'user/:username', component: ProfileComponent },
@@ -25,11 +30,11 @@ const routes: Routes = [
   { path: 'user/:username/social', component: SocialComponent },
   { path: 'user/:username/reviews', component: ReviewsComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: '**', component: LoginComponent},
+  { path: '**', component: LoginComponent },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes, routerOptions)],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

@@ -6,6 +6,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from mongoengine import Q
+from internal.models.planning import Planning
 from src.internal import app
 from src.internal.models.follow import Followers, Follows
 from src.internal.models.like import Like
@@ -159,7 +160,18 @@ def delete_user(name):
     except User.DoesNotExist:
         return Status.not_found() #404 Not Found
 
-    user.delete()
+    user.username = "Deleted: " + str(user.id)
+    user.password = "deleted"
+
+    user.profile.image_path = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Windows_10_Default_Profile_Picture.svg/2048px-Windows_10_Default_Profile_Picture.svg.png"
+    user.profile.description = ""
+    user.profile.settings = ""
+
+    # Remove extra user content
+    Follows.objects(user_id=user.id).delete()
+    Followers.objects(follower_id=user.id).delete()
+    Planning.objects(user_id=user.id).delete()
+
     return Status.deleted() #200 OK
 
 

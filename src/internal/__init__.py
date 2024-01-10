@@ -5,15 +5,19 @@ from flask_cors import CORS
 
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+mongo_host = os.getenv('MONGO_HOST')
+print(mongo_host)
 db = MongoEngine()
 app = flask.Flask("m7011e_app")
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
 app.config["MONGODB_SETTINGS"] = [
     {
         "db": "m7011e",
-        "host": "localhost",
+        "host": mongo_host,
         "port": 27017,
         "alias": "default",
     }

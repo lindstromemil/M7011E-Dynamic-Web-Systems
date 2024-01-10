@@ -9,5 +9,18 @@ services:
     volumes:
       - m7011e:/data/db
 
+  webservice:
+    image: ${REPOSITORY}:latest
+    #image: webservice # for running local build aka "make build"
+    container_name: webservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - compose/.env
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+
 volumes:
   m7011e:

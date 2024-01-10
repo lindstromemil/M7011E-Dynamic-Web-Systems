@@ -89,6 +89,7 @@ def update_rating(id):
 
 
 @app.route("/api/v1/ratings/<id>", methods=["DELETE"])
+@jwt_required()
 def delete_rating(id):
     """
     Deletes rating based on id

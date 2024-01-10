@@ -1,1 +1,58 @@
-<p>admin works!</p>
+<h2>Admin Page</h2>
+<button style="width: 30%; margin: auto; margin-bottom: 20px" (click)="goBack()">Go back</button>
+<div class="admin-container">
+  <div *ngIf="deleteWorked" class="password-changed">
+    <h2>Object deleted!</h2>
+  </div>
+
+  <!-- Input field for the admin action -->
+  <input [(ngModel)]="deleteInputField" placeholder="Enter delete name" />
+
+  <!-- Buttons for performing different admin actions -->
+  <button (click)="deleteUser()">Delete User</button>
+  <button (click)="deleteRating()">Delete Rating</button>
+  <button (click)="deleteBrand()">Delete Brand</button>
+  <button (click)="deleteBeverage()">Delete Beverage</button>
+</div>
+
+<div class="admin-container">
+  <div *ngIf="createBrandWorked" class="password-changed">
+    <h2>Brand created!</h2>
+  </div>
+  <div *ngIf="updateBrandWorked" class="password-changed">
+    <h2>Brand updated!</h2>
+  </div>
+
+  <!-- Input field for the admin action -->
+  <input [(ngModel)]="BrandNameInputFiled" placeholder="Enter brand name" />
+  <input [(ngModel)]="BrandDescriptionInputFiled" placeholder="Enter brand description" />
+
+  <!-- Buttons for performing different admin actions -->
+  <button (click)="createBrand()">Create Brand</button>
+  <button (click)="updateBrand()">Update Brand</button>
+</div>
+
+<div class="admin-container">
+  <div *ngIf="createBeverageWorked" class="password-changed">
+    <h2>Beverage created!</h2>
+  </div>
+  <div *ngIf="updateBeverageWorked" class="password-changed">
+    <h2>Beverage updated!</h2>
+  </div>
+
+  <!-- Input field for the admin action -->
+  <input [(ngModel)]="BeverageNameInputFiled" placeholder="Enter beverage name" />
+  <input [(ngModel)]="BeverageDescriptionInputFiled" placeholder="Enter beverage description" />
+  <input [(ngModel)]="BeverageImageInputFiled" placeholder="Enter beverage image path" />
+  <input [(ngModel)]="BeverageBitternessInputFiled" placeholder="Enter beverage bitterness (0-1)" />
+  <input [(ngModel)]="BeverageFullnessInputFiled" placeholder="Enter beverage fullness (0-1)" />
+  <input [(ngModel)]="BeverageSweetnessInputFiled" placeholder="Enter beverage sweetness (0-1)" />
+  <input [(ngModel)]="BeverageAbvInputFiled" placeholder="Enter beverage alcohol percentage" />
+  <input [(ngModel)]="BeverageTypeInputFiled" placeholder="Enter beverage type" />
+  <input [(ngModel)]="BeverageCountryInputFiled" placeholder="Enter beverage country" />
+  <input [(ngModel)]="BeverageBrandIdInputFiled" placeholder="Enter beverage brand name" />
+
+  <!-- Buttons for performing different admin actions -->
+  <button (click)="createBeverage()">Create Beverage</button>
+  <button (click)="updateBeverage()">Update Beverage</button>
+</div>

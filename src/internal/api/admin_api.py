@@ -34,6 +34,26 @@ def create_admin():
     
     return Status.does_not_have_access()
 
+@app.route("/api/v1/admins/me", methods=["GET"])
+@jwt_required()
+def admin_me():
+    """
+    Get me
+    :return user:
+    """
+    try:
+        current_user = get_jwt_identity()
+        current_user = User.objects.get(username=current_user)
+    except User.DoesNotExist:
+        # 401 Unauthorized
+        return Status.not_logged_in()
+    try:
+        admin = Admin.objects.get(user_id=current_user.id)
+        return jsonify(True)
+    except Exception:
+        return jsonify(False)
+
+
 
 @app.route('/api/v1/admins/me', methods=["POST"])
 @jwt_required()

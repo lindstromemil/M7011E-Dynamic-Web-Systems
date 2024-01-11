@@ -6,10 +6,10 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from mongoengine import Q
-from internal.models.planning import Planning
 from src.internal import app
 from src.internal.models.follow import Followers, Follows
 from src.internal.models.like import Like
+from src.internal.models.planning import Planning
 from src.internal.models.rating import Rating
 from src.internal.models.user import User, UserProfile
 from src.internal.utils.access_controller import *

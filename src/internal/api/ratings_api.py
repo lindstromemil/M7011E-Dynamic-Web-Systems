@@ -22,19 +22,27 @@ def create_rating():
     try:
         data = request.get_json()
         beverage = Beverage.objects.get(name=data["beverage"])
-        rating = Rating(
-            user_id=current_user,
-            beverage_id=beverage,
-            score=data["score"],
-            comment=data["comment"],
-            created_at=datetime.now(),
-        )
-        rating.save()
-        return Status.created() #201 Created
+        
+        if check_already_rated(current_user, beverage) is None:
+            rating = Rating(
+                user_id=current_user,
+                beverage_id=beverage,
+                score=data["score"],
+                comment=data["comment"],
+                created_at=datetime.now()
+            )
+            rating.save()
+            return Status.created() #201 Created
+        else:
+            return Status.already_exists() #409 Conflict
     except User.DoesNotExist or Beverage.DoesNotExist:
         return Status.not_found() #404 Not Found
     except Exception:
         return Status.error() #500 Internal Server Error
+
+
+def check_already_rated(current_user, beverage):
+    return Rating.objects.get(user_id=current_user, beverage_id=beverage)
 
 
 @app.route("/api/v1/ratings/<id>", methods=["PATCH"])

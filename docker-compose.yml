@@ -10,8 +10,8 @@ services:
       - m7011e:/data/db
 
   webservice:
-    image: ${REPOSITORY}:latest
-    #image: webservice # for running local build aka "make build"
+    #image: ${REPOSITORY}:latest
+    image: webservice # for running local build aka "make build"
     container_name: webservice
     build:
       context: .

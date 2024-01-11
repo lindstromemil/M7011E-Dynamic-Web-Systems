@@ -17,32 +17,30 @@ def create_rating():
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
-    
+        return Status.not_logged_in()  # 401 Unauthorized
+
     try:
         data = request.get_json()
         beverage = Beverage.objects.get(name=data["beverage"])
-        
-        if check_already_rated(current_user, beverage) is None:
+
+        try:
+            Rating.objects.get(user_id=current_user.id, beverage_id=beverage.id)
+            return Status.already_exists()  # 409 Conflict
+        except Rating.DoesNotExist:
             rating = Rating(
                 user_id=current_user,
                 beverage_id=beverage,
                 score=data["score"],
                 comment=data["comment"],
-                created_at=datetime.now()
+                created_at=datetime.now(),
             )
             rating.save()
-            return Status.created() #201 Created
-        else:
-            return Status.already_exists() #409 Conflict
+            return Status.created()  # 201 Created
     except User.DoesNotExist or Beverage.DoesNotExist:
-        return Status.not_found() #404 Not Found
-    except Exception:
-        return Status.error() #500 Internal Server Error
-
-
-def check_already_rated(current_user, beverage):
-    return Rating.objects.get(user_id=current_user, beverage_id=beverage)
+        return Status.not_found()  # 404 Not Found
+    except Exception as e:
+        return jsonify(e), 500  # 500 Internal Server Error
+        # return Status.error()  # 500 Internal Server Error
 
 
 @app.route("/api/v1/ratings/<id>", methods=["PATCH"])
@@ -51,23 +49,23 @@ def update_rating(id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
+        return Status.not_logged_in()  # 401 Unauthorized
 
     try:
         rating = Rating.objects.get(id=id)
         if rating.user_id != current_user:
             if not admin_check(current_user.id):
-                return Status.does_not_have_access() #403 Forbidden
-            
+                return Status.does_not_have_access()  # 403 Forbidden
+
     except Rating.DoesNotExist:
-        return Status.not_found() #404 Not Found
+        return Status.not_found()  # 404 Not Found
 
     data = request.get_json()
     for key, value in data.items():
         if key in rating and key != "id":
             setattr(rating, key, value)
     rating.save()
-    return Status.updated() #200 OK
+    return Status.updated()  # 200 OK
 
 
 @app.route("/api/v1/ratings/<id>", methods=["DELETE"])
@@ -77,19 +75,19 @@ def delete_rating(id):
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        return Status.not_logged_in() #401 Unauthorized
+        return Status.not_logged_in()  # 401 Unauthorized
 
     try:
         rating = Rating.objects.get(id=id)
     except Rating.DoesNotExist:
-        return Status.not_found() #404 Not Found
+        return Status.not_found()  # 404 Not Found
 
     if admin_check(current_user.id) or current_user.id == rating.user_id:
         Like.objects(rating_id=id).delete()
         Rating.objects.get(id=id).delete()
-        return Status.deleted() #200 OK
+        return Status.deleted()  # 200 OK
     else:
-        return Status.does_not_have_access() #403 Forbidden
+        return Status.does_not_have_access()  # 403 Forbidden
 
 
 @app.route("/api/v1/rating/<rating_id>/likes", methods=["GET"])
@@ -98,10 +96,10 @@ def get_all_rating_likes(rating_id):
         rating = Rating.objects.get(id=rating_id)
         all_likes = Like.objects(rating_id=rating_id)
     except Rating.DoesNotExist or Like.DoesNotExist:
-        return Status.not_found() #404 Not Found
-    
+        return Status.not_found()  # 404 Not Found
+
     entries = []
     for item in all_likes:
         temp = [item.user_id, item.rating_id]
         entries.append(temp)
-    return jsonify(entries) #200 OK
+    return jsonify(entries)  # 200 OK

@@ -32,7 +32,7 @@ def create_beverage():
         # 401 Unauthorized
         return Status.not_logged_in()
 
-    if admin_check(user_id=current_user.id):
+    if admin_check(current_user.id):
         data = request.get_json()
         try:
             data["brand_id"] = Brand.objects.get(name=data["brand_id"])
@@ -105,7 +105,7 @@ def update_beverage(name):
         # 401 Unauthorized
         return Status.not_logged_in()
 
-    if admin_check(user_id=current_user.id):
+    if admin_check(current_user.id):
         try:
             data = request.get_json()
             try:
@@ -144,7 +144,7 @@ def delete_beverages(name):
     except User.DoesNotExist:
         # 401 Unauthorized
         return Status.not_logged_in()
-    if admin_check(user_id=current_user.id):
+    if admin_check(current_user.id):
         try:
             try:
                 objectId = ObjectId(name)

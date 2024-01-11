@@ -32,8 +32,6 @@ export class IndividualEntriesComponent implements OnInit {
 
   createDialogOpen: boolean = false;
   updateDialogOpen: boolean = false;
-  createForm!: FormGroup;
-  updateForm!: FormGroup;
 
   userStatus: string = 'Not logged in';
   usersRating: Rating = {
@@ -113,11 +111,9 @@ export class IndividualEntriesComponent implements OnInit {
                   .get_all_plannings(user._id.$oid)
                   .subscribe((plannings) => {
                     for (let i = 0; i < plannings.length; i++) {
-                      console.log(plannings[i]);
                       if (plannings[i].beverage_id == this.beverage?._id.$oid) {
-                        console.log(plannings[i]);
-                        console.log('planned set');
                         this.userStatus = 'Planned';
+                        break;
                       }
                     }
                   });
@@ -146,7 +142,6 @@ export class IndividualEntriesComponent implements OnInit {
             console.log(beverages);
           });
       });
-    console.log(this.userStatus);
   }
 
   addToPlanning() {
@@ -155,6 +150,7 @@ export class IndividualEntriesComponent implements OnInit {
         .create_planning(user._id.$oid, this.beverage?._id.$oid)
         .subscribe((result: string) => {
           console.log(result);
+          this.userStatus = 'Planned';
         });
     });
   }
@@ -177,6 +173,8 @@ export class IndividualEntriesComponent implements OnInit {
         console.log(result);
         this.loadContent();
       });
+    this.createDialogOpen = false;
+    this.userStatus = 'Rated';
   }
 
   closeCreateDialog() {
@@ -187,7 +185,23 @@ export class IndividualEntriesComponent implements OnInit {
     this.updateDialogOpen = true;
   }
 
-  submitUpdateDialog() {}
+  submitUpdateDialog() {
+    console.log(this.usersRating?.comment);
+    console.log(this.usersRating?.score);
+    this.usersRating.beverage_id = this.beverage?._id.$oid;
+    this.ratingAPI
+      .update_rating(
+        this.usersRating._id.$oid,
+        this.usersRating.score,
+        this.usersRating.comment
+      )
+      .subscribe((result: string) => {
+        console.log(result);
+        this.loadContent();
+      });
+    this.updateDialogOpen = false;
+    this.userStatus = 'Rated';
+  }
 
   closeUpdateDialog() {
     this.updateDialogOpen = false;

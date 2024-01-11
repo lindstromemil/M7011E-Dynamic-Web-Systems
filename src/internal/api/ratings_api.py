@@ -44,6 +44,7 @@ def create_rating():
 
 
 @app.route("/api/v1/ratings/<id>", methods=["PATCH"])
+@jwt_required()
 def update_rating(id):
     try:
         current_user = get_jwt_identity()
@@ -53,7 +54,7 @@ def update_rating(id):
 
     try:
         rating = Rating.objects.get(id=id)
-        if rating.user_id != current_user:
+        if rating.user_id != current_user.id:
             if not admin_check(current_user.id):
                 return Status.does_not_have_access()  # 403 Forbidden
 

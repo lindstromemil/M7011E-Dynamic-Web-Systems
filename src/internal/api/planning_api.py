@@ -22,36 +22,26 @@ def create_planning():
     try:
         data = request.get_json()
 
-        if check_beverage(str(data["beverage_id"])) is None:
+        try:
+            Beverage.objects.get(id=str(data["beverage_id"]))
+        except Beverage.DoesNotExist:
             return Status.not_found()  # 404 Not Found
 
-        if check_beverage_in_planning(str(data["user_id"]), str(data["beverage_id"])) is None:
-            if current_user.id == str(data["user_id"]) or admin_check(current_user.id):
-                new_planning = Planning(**data)
-                new_planning.save()
-                return Status.created()  # 201 Created
-            else:
+        try:
+            User.objects.get(id=str(data["user_id"]))
+            if current_user.id != str(data["user_id"]) and not admin_check(current_user.id):
                 return Status.does_not_have_access()  # 403 Forbidden
-        else:
-            return Status.already_exists()  # 409 Conflict
+            try:
+                Planning.objects.get(user_id=str(data["user_id"]), beverage_id=str(data["beverage_id"]))
+                return Status.already_exists()  # 409 Conflict
+            except Planning.DoesNotExist:
+                newPlanning = Planning(**data)
+                newPlanning.save()
+                return Status.created()  # 201 Created
+        except User.DoesNotExist:
+            return Status.not_found()  # 404 Not Found
     except Exception:
         return Status.error()  # 500 Internal Server Error
-
-
-def check_beverage(beverage_id):
-    try:
-        existing_beverage = Beverage.objects.get(id=beverage_id)
-        return existing_beverage
-    except Beverage.DoesNotExist:
-        return Status.not_found()  # 404 Not Found
-
-
-def check_beverage_in_planning(user_id, beverage_id):
-    try:
-        existing_beverage_in_planning = Planning.objects.get(user_id=user_id, beverage_id=beverage_id)
-        return existing_beverage_in_planning
-    except Planning.DoesNotExist:
-        return Status.not_found()  # 404 Not Found
 
 
 @app.route("/api/v1/planning/<id>", methods=["GET"])

@@ -5,6 +5,7 @@
   padding: 30px;
   background-color: var(--content-background);
   margin-bottom: 30px;
+  background-color: #eeeeee;
 }
 
 .header {
@@ -182,6 +183,7 @@
 
 .recommendations-card {
   background-color: var(--content-background);
+  background-color: #eeeeee;
   width: 160px;
   display: flex;
   text-align: center;

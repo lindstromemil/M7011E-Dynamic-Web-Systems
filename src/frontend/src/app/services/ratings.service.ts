@@ -53,4 +53,25 @@ export class RatingsService {
       headers: header,
     });
   }
+
+  update_rating(
+    id: string,
+    score: number,
+    comment: string
+  ): Observable<string> {
+    const header: { Authorization: string } = {
+      Authorization: `Bearer ${this.cookieService.get('token')}`,
+    };
+    var body = {
+      score: score,
+      comment: comment,
+    };
+    return this.http.patch<string>(
+      environment.baseUrl + '/ratings/' + id,
+      body,
+      {
+        headers: header,
+      }
+    );
+  }
 }

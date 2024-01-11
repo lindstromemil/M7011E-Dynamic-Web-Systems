@@ -235,3 +235,47 @@
     </button>
   </div>
 </div>
+
+<div *ngIf="updateDialogOpen" class="popup-container">
+  <h2>Rate {{ beverage?.name }}</h2>
+  <mat-form-field appearance="fill">
+    <mat-label>Score (1-10)</mat-label>
+    <input
+      matInput
+      type="number"
+      step="0.5"
+      min="1"
+      max="10"
+      [(ngModel)]="usersRating.score"
+      name="score"
+      required
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" style="width: 70%">
+    <mat-label>Comment</mat-label>
+    <textarea
+      matInput
+      #updateComment
+      rows="5"
+      maxlength="200"
+      [(ngModel)]="usersRating.comment"
+      name="comment"
+    ></textarea>
+    <mat-hint align="end"> {{ updateComment.value.length }}/200</mat-hint>
+  </mat-form-field>
+
+  <div class="popup-container-buttons">
+    <button mat-button type="button" (click)="closeUpdateDialog()">
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="submitUpdateDialog()"
+      [disabled]="!isScoreValid()"
+    >
+      Submit
+    </button>
+  </div>
+</div>

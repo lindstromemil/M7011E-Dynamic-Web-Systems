@@ -6,24 +6,9 @@
 - Flask
 - Flask-Mongoengine
 
-## Setup environment
-
-Clone the repository (using ssh)
-
-	git clone git@github.com:lindstromemil/M7011E-Project.git
-
-In repository folder run these commands
-
-    pip install virtualenv
-    python -m venv env
-    env\Scripts\activate
-
-When activated
-
-    pip install flask
-    pip install flask-cors
-    pip install git+https://github.com/idoshr/flask-mongoengine.git@1.0.1
-    pip install flask-jwt-extended
+# Run web app
+Run `docker-compose up -d` in root and then in another terminal you route to `src/frontend` and run `ng serve`.
+The app starts at [localhost](http://localhost:4200/login).
 
 
 ## Run tests

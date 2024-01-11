@@ -77,8 +77,8 @@ def delete_rating(id):
         return Status.not_found() #404 Not Found
 
     if admin_check(current_user.id) or current_user.id == rating.user_id:
-        rating = Rating.objects.get(id=id)
-        rating.delete()
+        Like.objects(rating_id=id).delete()
+        Rating.objects.get(id=id).delete()
         return Status.deleted() #200 OK
     else:
         return Status.does_not_have_access() #403 Forbidden

@@ -1,7 +1,6 @@
 from bson import ObjectId
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from http import HTTPStatus
 from mongoengine import Q
 from src.internal import app
 from src.internal.models.brand import Brand
@@ -13,42 +12,29 @@ from src.internal.utils.status_messages import Status
 @app.route("/api/v1/brands", methods=["POST"])
 @jwt_required()
 def create_brand():
-    """
-    This API creates a new brand
-    :param json data:
-    :return:
-    """
     try:
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
-    if admin_check(user_id=current_user.id):
+    if admin_check(current_user.id):
         data = request.get_json()
         try:
             if Brand.objects.get(name=data["name"]):
-                # 409 Conflict
-                return Status.name_already_in_use()
+                return Status.name_already_in_use() #409 Conflict
         except Brand.DoesNotExist:
             pass
 
         brand = Brand(**data)
         brand.save()
-        # 201 Created
-        return Status.created()
+        return Status.created() #201 Created
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route("/api/v1/brands", methods=["GET"])
 def get_all_brands():
-    """
-    Gets all brands matching a query if given
-    :return brands[]:
-    """
     query = request.args.get("q", type=str, default="")
     size = request.args.get("size", type=int, default=0)
     page = request.args.get("page", type=int, default=1)
@@ -62,49 +48,34 @@ def get_all_brands():
 
     results = results.limit(size).skip((page - 1) * size)
     brandsList = [brand.to_mongo().to_dict() for brand in results]
-    # 200 OK
-    return jsonify(brandsList), HTTPStatus.OK
+    return jsonify(brandsList) #200 OK
 
 
 @app.route("/api/v1/brands/<name>", methods=["GET"])
 def get_brand(name):
-    """
-    Get brand based on name
-    :param name:
-    :return brand:
-    """
     try:
         try:
             objectId = ObjectId(name)
             brand = Brand.objects.get(id=objectId)
         except Exception:
             brand = Brand.objects.get(name__icontains=name)
-        # 200 OK
-        return jsonify(brand), HTTPStatus.OK
+        return jsonify(brand) #200 OK
     except Brand.DoesNotExist:
-        # 404 Not found
-        return Status.not_found()
+        return Status.not_found() #404 Not found
     except Exception:
-        # 500 Internal server error
-        return Status.error()
+        return Status.error() #500 Internal server error
 
 
 @app.route("/api/v1/brands/<name>", methods=["PATCH"])
 @jwt_required()
 def update_brand(name):
-    """
-    Updates a brand
-    :param json data:
-    :return:
-    """
     try:
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
+        return Status.not_logged_in() #401 Unauthorized
 
-    if admin_check(user_id=current_user.id):
+    if admin_check(current_user.id):
         try:
             data = request.get_json()
             try:
@@ -116,34 +87,25 @@ def update_brand(name):
                 if key in brand and key != "id":
                     setattr(brand, key, value)
             brand.save()
-            # 200 OK
-            return Status.updated()
+            return Status.updated() #200 OK
         except Brand.DoesNotExist:
-            # 404 Not found
-            return Status.not_found()
+            return Status.not_found() #404 Not found
         except Exception:
-            # 500 Internal server error
-            return Status.error()
+            return Status.error() #500 Internal server error
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden
 
 
 @app.route("/api/v1/brands/<name>", methods=["DELETE"])
 @jwt_required()
 def delete_brand(name):
-    """
-    Deletes brand based on name or id
-    :param name:
-    :return:
-    """
     try:
         current_user = get_jwt_identity()
         current_user = User.objects.get(username=current_user)
     except User.DoesNotExist:
-        # 401 Unauthorized
-        return Status.not_logged_in()
-    if admin_check(user_id=current_user.id):
+        return Status.not_logged_in() #401 Unauthorized
+    
+    if admin_check(current_user.id):
         try:
             try:
                 objectId = ObjectId(name)
@@ -151,14 +113,10 @@ def delete_brand(name):
             except Exception:
                 brand = Brand.objects.get(name=name)
             brand.delete()
-            # 200 OK
-            return Status.deleted()
+            return Status.deleted() #200 OK
         except Brand.DoesNotExist:
-            # 404 Not found
-            return Status.not_found()
+            return Status.not_found() #404 Not found
         except Exception:
-            # 500 Internal server error
-            return Status.error()
+            return Status.error() #500 Internal server error
     else:
-        # 403 Forbidden
-        return Status.does_not_have_access()
+        return Status.does_not_have_access() #403 Forbidden

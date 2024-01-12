@@ -5,7 +5,7 @@
   padding: 30px;
   background-color: var(--content-background);
   margin-bottom: 30px;
-  background-color: #eeeeee;
+  background-color: var(--background);
 }
 
 .header {
@@ -26,6 +26,11 @@
   justify-content: space-between;
   align-items: flex-start;
   background-color: var(--content-background);
+  border-radius: 7px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: -10px;
   width: 30%;
   margin-top: 50px;
 }
@@ -124,6 +129,7 @@
   display: flex;
   max-width: 1000px;
   width: 100%;
+  margin-bottom: 30px;
 }
 
 .recommendations-wrapper {
@@ -183,7 +189,6 @@
 
 .recommendations-card {
   background-color: var(--content-background);
-  background-color: #eeeeee;
   width: 160px;
   display: flex;
   text-align: center;
@@ -225,7 +230,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: var(--content-background);
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 7px;

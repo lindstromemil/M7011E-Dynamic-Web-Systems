@@ -1,8 +1,7 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 75px;
-  background-color: #f4f4f4;
+  padding-left: 75px;
+  padding-right: 75px;
+  padding-bottom: 75px;
 }
 
 h2 {
@@ -16,8 +15,7 @@ h2 {
 }
 
 .beverage-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: var(--content-background);
   border-radius: 8px;
   margin-bottom: 10px;
   padding: 15px;
@@ -42,7 +40,7 @@ h2 {
 
 .profile-name {
   background-color: #4b4b4b;
-  color: #FFF;
+  color: #fff;
   font-size: 20px;
   padding: 5px;
   font-weight: bold;
@@ -81,4 +79,3 @@ h2 {
   color: #777;
   font-size: 14px;
 }
-

@@ -30,7 +30,9 @@ def insert_beverage_from_csv():
                 print(f"Add brand {row['brand']} to database first")
                 continue
             try:
-                existingBeverage = Beverage.objects.get(name=row["name"], brand_id=existingBrand)
+                existingBeverage = Beverage.objects.get(
+                    name=row["name"], brand_id=existingBrand
+                )
             except Beverage.DoesNotExist:
                 beverage = Beverage(
                     name=row["name"],

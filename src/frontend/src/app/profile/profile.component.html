@@ -1,24 +1,40 @@
-<app-navbar firstSelected="false" secondSelected="true" thirdSelected="false"></app-navbar>
-<app-profile-bar overviewSelected="true" listSelected="false" socialSelected="false"
-                 reviewsSelected="false"></app-profile-bar>
-
+<app-navbar
+  firstSelected="false"
+  secondSelected="true"
+  thirdSelected="false"
+></app-navbar>
+<app-profile-bar
+  overviewSelected="true"
+  listSelected="false"
+  socialSelected="false"
+  reviewsSelected="false"
+></app-profile-bar>
 
 <body>
-<h2>Activity</h2>
-<ul class="beverage-list">
-  <div *ngFor="let item of activity">
-    <li class="beverage-item">
-      <div class="image_wrapper" (click)="navigateToBeveragePage(item.beverage.name)">
-        <img src="{{item.beverage.image_path}}" alt="{{item.beverage.name}}" class="beverage-image">
-      </div>
-      <div class="beverage-info">
-        <div class="beverage-name">{{item.beverage.name}}</div>
-        <div class="timestamp">{{item.created_at}}</div>
-      </div>
-    </li>
-  </div>
-  <div *ngIf="activity.length === 0">
-    <h2>Sorry, we could not find anything</h2>
-  </div>
-</ul>
+  <h2>Activity</h2>
+  <ul class="beverage-list">
+    <div *ngFor="let item of activity">
+      <li class="beverage-item">
+        <div
+          class="image_wrapper"
+          (click)="navigateToBeveragePage(item.beverage.name)"
+        >
+          <img
+            src="{{ item.beverage.image_path }}"
+            alt="{{ item.beverage.name }}"
+            class="beverage-image"
+          />
+        </div>
+        <div class="beverage-info">
+          <div class="beverage-name">
+            <h3>{{ name }} has rated {{ item.beverage.name }}</h3>
+          </div>
+          <div class="timestamp">{{ item.created_at }}</div>
+        </div>
+      </li>
+    </div>
+    <div *ngIf="activity.length === 0">
+      <h2>Sorry, we could not find anything</h2>
+    </div>
+  </ul>
 </body>

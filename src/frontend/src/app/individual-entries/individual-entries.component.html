@@ -1,1 +1,291 @@
-<p>individual-entries works!</p>
+<app-navbar></app-navbar>
+
+<div *ngIf="isLoading; else content"></div>
+
+<ng-template #content>
+  <div *ngIf="beverage && brand; else notFound">
+    <div class="header-wrapper">
+      <div class="header">
+        <div class="header-left-wrapper">
+          <div class="beverage-image-wrapper">
+            <img [src]="beverage.image_path" alt="Beverage Image" />
+            <button
+              *ngIf="userStatus == 'Logged in'"
+              mat-raised-button
+              color="accent"
+              (click)="addToPlanning()"
+            >
+              Add to list
+            </button>
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="openCreateDialog()"
+              *ngIf="userStatus == 'Planned'"
+            >
+              Rate beverage
+            </button>
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="openUpdateDialog()"
+              *ngIf="userStatus == 'Rated'"
+            >
+              Update rating
+            </button>
+          </div>
+          <div class="beverage-summary-wrapper">
+            <h1>{{ beverage.name }}</h1>
+            <p>{{ beverage.description }}</p>
+          </div>
+        </div>
+        <div class="header-right-wrapper">
+          <div class="details">
+            <div class="details-set">
+              <div class="details-key">
+                <p>Type</p>
+              </div>
+              <div class="details-value">
+                <a [routerLink]="['/browse', beverage.beverageType]">
+                  <p>{{ beverage.beverageType }}</p>
+                </a>
+              </div>
+            </div>
+            <div class="details-set">
+              <div class="details-key">
+                <p>ABV</p>
+              </div>
+              <div class="details-value">
+                <p>{{ beverage.abv }} %</p>
+              </div>
+            </div>
+
+            <div class="details-set">
+              <div class="details-key">
+                <p>Average Score</p>
+              </div>
+              <div *ngIf="averageRating == -1" class="details-value">
+                <p>No ratings yet</p>
+              </div>
+              <div *ngIf="averageRating != -1" class="details-value">
+                <p>{{ averageRating }} / 10</p>
+              </div>
+            </div>
+
+            <div class="details-set">
+              <div class="details-key">
+                <p>Brand</p>
+              </div>
+              <div class="details-value">
+                <a [routerLink]="['/brand', brand.name]">
+                  <p>{{ brand.name }}</p>
+                </a>
+              </div>
+            </div>
+
+            <div class="details-set">
+              <div class="details-key">
+                <p>Country</p>
+              </div>
+              <div class="details-value">
+                <a [routerLink]="['/browse', beverage.country]">
+                  <p>{{ beverage.country }}</p>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="details">
+            <div class="taste">
+              <div class="details-key">
+                <p>Bitterness</p>
+              </div>
+              <div
+                class="quarter-circle"
+                [style.background]="
+                  'conic-gradient(transparent 0%, orange 0%, orange ' +
+                  convertToPercentage(beverage.bitterness) +
+                  '%, transparent 0%)'
+                "
+              ></div>
+            </div>
+            <div class="taste">
+              <div class="details-key">
+                <p>Fullness</p>
+              </div>
+
+              <div
+                class="quarter-circle"
+                [style.background]="
+                  'conic-gradient(transparent 0%, red 0%, red ' +
+                  convertToPercentage(beverage.sweetness) +
+                  '%, transparent 0%)'
+                "
+              ></div>
+            </div>
+            <div class="taste">
+              <div class="details-key">
+                <p>Sweetness</p>
+              </div>
+              <div
+                class="quarter-circle"
+                [style.background]="
+                  'conic-gradient(transparent 0%, green 0%, green ' +
+                  convertToPercentage(beverage.fullness) +
+                  '%, transparent 0%)'
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="recommendations-wrapper">
+          <div class="recommendations-title">
+            <h3>Discover more from {{ brand.name }}</h3>
+            <a [routerLink]="['/browse', beverage.brand_id.$oid]">
+              View all beverages from {{ brand.name }}
+            </a>
+          </div>
+          <div class="recommendations-list">
+            <a
+              *ngFor="let tempBeverage of brandRecommendations"
+              class="recommendations-card"
+              [routerLink]="['/beverage', tempBeverage.name]"
+              routerLinkActive="active"
+            >
+              <img src="{{ tempBeverage.image_path }}" alt="Beverage Image" />
+              <h4>{{ tempBeverage.name }}</h4>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="recommendations-wrapper">
+          <div class="recommendations-title">
+            <h3>Dive Deeper into {{ beverage.beverageType }}</h3>
+            <a [routerLink]="['/browse', beverage.beverageType]">
+              View all {{ beverage.beverageType }} beverages
+            </a>
+          </div>
+          <div class="recommendations-list">
+            <a
+              *ngFor="let tempBeverage of typeRecommendations"
+              [routerLink]="['/beverage', tempBeverage.name]"
+              routerLinkActive="active"
+              class="recommendations-card"
+            >
+              <img src="{{ tempBeverage.image_path }}" alt="Beverage Image" />
+              <h4>{{ tempBeverage.name }}</h4>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template #notFound>
+    <div class="not-found">
+      <h1>404</h1>
+      <p>Sorry, we couldn't find the beverage you were looking for.</p>
+    </div>
+  </ng-template>
+</ng-template>
+
+<div *ngIf="createDialogOpen" class="popup-container">
+  <h2>Rate {{ beverage?.name }}</h2>
+  <mat-form-field appearance="fill">
+    <mat-label>Score (1-10)</mat-label>
+    <input
+      matInput
+      type="number"
+      step="0.5"
+      min="1"
+      max="10"
+      [(ngModel)]="usersRating.score"
+      name="score"
+      required
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" style="width: 70%">
+    <mat-label>Comment</mat-label>
+    <textarea
+      matInput
+      #createComment
+      rows="5"
+      maxlength="200"
+      [(ngModel)]="usersRating.comment"
+      name="comment"
+    ></textarea>
+    <mat-hint align="end"> {{ createComment.value.length }}/200</mat-hint>
+  </mat-form-field>
+
+  <div class="popup-container-buttons">
+    <button
+      mat-button
+      type="button"
+      (click)="closeCreateDialog()"
+      color="primary"
+    >
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="submitCreateDialog()"
+      [disabled]="!isScoreValid()"
+    >
+      Submit
+    </button>
+  </div>
+</div>
+
+<div *ngIf="updateDialogOpen" class="popup-container">
+  <h2>Rate {{ beverage?.name }}</h2>
+  <mat-form-field appearance="fill">
+    <mat-label>Score (1-10)</mat-label>
+    <input
+      matInput
+      type="number"
+      step="0.5"
+      min="1"
+      max="10"
+      [(ngModel)]="usersRating.score"
+      name="score"
+      required
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" style="width: 70%">
+    <mat-label>Comment</mat-label>
+    <textarea
+      matInput
+      #updateComment
+      rows="5"
+      maxlength="200"
+      [(ngModel)]="usersRating.comment"
+      name="comment"
+    ></textarea>
+    <mat-hint align="end"> {{ updateComment.value.length }}/200</mat-hint>
+  </mat-form-field>
+
+  <div class="popup-container-buttons">
+    <button
+      mat-button
+      type="button"
+      (click)="closeUpdateDialog()"
+      color="primary"
+    >
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="submitUpdateDialog()"
+      [disabled]="!isScoreValid()"
+    >
+      Submit
+    </button>
+  </div>
+</div>

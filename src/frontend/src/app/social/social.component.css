@@ -1,8 +1,6 @@
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 75px;
-  background-color: #f4f4f4;
 }
 
 h2 {
@@ -16,7 +14,7 @@ h2 {
 }
 
 .social-card {
-  background-color: #fff;
+  background-color: var(--content-background);
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -36,4 +34,3 @@ h2 {
   padding: 10px;
   text-align: center;
 }
-

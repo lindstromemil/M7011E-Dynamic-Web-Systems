@@ -1,15 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {UserService} from 'src/app/services/user.service'
-import {User} from '../models/user.model';
-import {AuthService} from "../services/auth.service";
-import {Router} from "@angular/router";
-import {BeverageService} from "../services/beverage.service";
-import {RatingsService} from "../services/ratings.service";
-import {LikeService} from "../services/like.service";
-import {Rating, Review} from "../models/rating.model";
-import {Beverage} from "../models/beverage.model";
-import {Like} from "../models/like.model";
-import {FollowService} from "../services/follow.service";
+import { Component, OnInit } from '@angular/core';
+import { UserService } from 'src/app/services/user.service';
+import { User } from '../models/user.model';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { BeverageService } from '../services/beverage.service';
+import { RatingsService } from '../services/ratings.service';
+import { LikeService } from '../services/like.service';
+import { Rating, Review } from '../models/rating.model';
+import { Beverage } from '../models/beverage.model';
+import { Like } from '../models/like.model';
+import { FollowService } from '../services/follow.service';
 
 @Component({
   selector: 'app-activity',
@@ -19,7 +19,6 @@ import {FollowService} from "../services/follow.service";
 export class ActivityComponent implements OnInit {
   reviews: Review[] = [];
   user: User | null = null;
-
 
   constructor(
     private router: Router,
@@ -43,50 +42,61 @@ export class ActivityComponent implements OnInit {
               this.userAPI.get_all_user_ratings(follows[y].username).subscribe(
                 (rating: Rating[]) => {
                   for (let i = 0; i < rating.length; i++) {
-                    if (rating[i].comment !== "") {
-                      this.beverageAPI.get_beverage(rating[i].beverage_id.$oid.toString()).subscribe(
-                        (beverage: Beverage) => {
-                          this.ratingAPI.get_all_rating_likes(rating[i]._id.$oid.toString()).subscribe(
-                            (likes: Like[]) => {
-                              let review: Review = {
-                                username: follows[y].username,
-                                ratingId: rating[i]._id.$oid.toString(),
-                                beverage: beverage,
-                                score: rating[i].score,
-                                comment: rating[i].comment,
-                                likes: likes.length,
-                                created_at: rating[i].created_at.$date.toString().slice(0, 10)
-                              }
-                              this.reviews = this.insertIntoSortedArray(this.reviews, review)
-                              //this.reviews.push(review);
-                            },
-                            err => {
-                              console.error(err.error)
-                            }
-                          )
-                        },
-                        err => {
-                          console.error(err.error)
-                        }
-                      )
+                    if (rating[i].comment !== '') {
+                      this.beverageAPI
+                        .get_beverage(rating[i].beverage_id.$oid.toString())
+                        .subscribe(
+                          (beverage: Beverage) => {
+                            this.ratingAPI
+                              .get_all_rating_likes(
+                                rating[i]._id.$oid.toString()
+                              )
+                              .subscribe(
+                                (likes: Like[]) => {
+                                  let review: Review = {
+                                    username: follows[y].username,
+                                    ratingId: rating[i]._id.$oid.toString(),
+                                    beverage: beverage,
+                                    score: rating[i].score,
+                                    comment: rating[i].comment,
+                                    likes: likes.length,
+                                    created_at: rating[i].created_at.$date
+                                      .toString()
+                                      .slice(0, 10),
+                                  };
+                                  this.reviews = this.insertIntoSortedArray(
+                                    this.reviews,
+                                    review
+                                  );
+                                  //this.reviews.push(review);
+                                },
+                                (err) => {
+                                  console.error(err.error);
+                                }
+                              );
+                          },
+                          (err) => {
+                            console.error(err.error);
+                          }
+                        );
                     }
                   }
                 },
-                err => {
-                  console.error(err.error)
+                (err) => {
+                  console.error(err.error);
                 }
-              )
+              );
             }
           },
-          err => {
-            console.error(err.error)
+          (err) => {
+            console.error(err.error);
           }
-        )
+        );
       },
-      err => {
-        console.error("Could not find me:" + err);
+      (err) => {
+        console.error('Could not find me:' + err);
       }
-    )
+    );
   }
 
   insertIntoSortedArray(arr: Review[], value: Review): Review[] {
@@ -121,26 +131,28 @@ export class ActivityComponent implements OnInit {
         }
       },
       () => {
-        this.likeAPI.get_like(rating_id, this.user?._id.$oid.toString()).subscribe(
-          (like: Like) => {
-            this.likeAPI.delete_like(like._id.$oid.toString()).subscribe(
-              () => {
-                for (let i = 0; i < this.reviews.length; i++) {
-                  if (this.reviews[i].ratingId === rating_id) {
-                    this.reviews[i].likes -= 1;
+        this.likeAPI
+          .get_like(rating_id, this.user?._id.$oid.toString())
+          .subscribe(
+            (like: Like) => {
+              this.likeAPI.delete_like(like._id.$oid.toString()).subscribe(
+                () => {
+                  for (let i = 0; i < this.reviews.length; i++) {
+                    if (this.reviews[i].ratingId === rating_id) {
+                      this.reviews[i].likes -= 1;
+                    }
                   }
+                },
+                (err) => {
+                  console.error(err.error);
                 }
-              },
-              err => {
-                console.error(err.error)
-              }
-            )
-          },
-          err => {
-            console.error(err.error)
-          }
-        )
+              );
+            },
+            (err) => {
+              console.error(err.error);
+            }
+          );
       }
-    )
+    );
   }
 }

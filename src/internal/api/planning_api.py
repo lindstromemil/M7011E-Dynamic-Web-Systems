@@ -29,7 +29,7 @@ def create_planning():
 
         try:
             User.objects.get(id=str(data["user_id"]))
-            if current_user.id != str(data["user_id"]) and not admin_check(current_user.id):
+            if str(current_user.id) != str(data["user_id"]) and not admin_check(current_user.id):
                 return Status.does_not_have_access()  # 403 Forbidden
             try:
                 Planning.objects.get(user_id=str(data["user_id"]), beverage_id=str(data["beverage_id"]))
